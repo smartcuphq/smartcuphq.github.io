@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function team() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in [
+          'cgrcasanova@gmail.com',
+          'pjc.casanova@gmail.com',
+          'idavidsrno96@gmail.com',
+          'verdes.eu.genio@gmail.com',
+          'gonvipa@gmail.com',
+          'schwarzpower13@gmail.com'
+        ];
+    }
+    function admin() {
+      return team() && request.auth.token.email.lower() == 'schwarzpower13@gmail.com';
+    }
+    match /team/{id} { allow read: if team(); allow write: if admin(); }
+    match /claims/{uid} { allow read: if team(); allow write: if team() && (request.auth.uid == uid || admin()); }
+    match /people/{uid} { allow read: if team(); allow write: if team() && request.auth.uid == uid; }
+    match /presence/{uid} { allow read: if team(); allow write: if team() && request.auth.uid == uid; }
+    match /threads/{id} { allow read, write: if team(); }
+    match /replies/{id} { allow read, write: if team(); }
+    match /chat/{id} { allow read, write: if team(); }
+    match /marks/{id} { allow read, write: if team(); }
+    match /checkins/{id} { allow read, write: if team(); }
+    match /names/{id} { allow read, write: if team(); }
+    match /needs/{id} { allow read, write: if team(); }
+    match /media/{id} {
+      allow read, write: if team();
+      match /c/{n} { allow read, write: if team(); }
+    }
+    match /wild/{id} {
+      allow read, write: if team();
+      match /replies/{rid} { allow read, write: if team(); }
+    }
+  }
+}
