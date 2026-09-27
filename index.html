@@ -1210,6 +1210,10 @@ button.opt:disabled{cursor:default}
 </style>
 <script>
 /* Smart Cup HQ desktop/phone app: the page's claude.use() calls are served by Firebase (see hq-firebase.js). */
+/* moved from schwarzpower13-stack.github.io/pulse/hq/: bring over what this device had there (read markers, filters) */
+(function(){ var m = /[#&]carry=([^&]+)/.exec(location.hash); if (!m) return;
+  try { var o = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1]))))); for (var k in o) if (k.indexOf("room6:") === 0 && localStorage.getItem(k) == null) localStorage.setItem(k, o[k]); } catch (e){}
+  try { history.replaceState(null, "", location.pathname + location.search); } catch (e){} })();
 window.__hqReady = new Promise(function(r){ window.__hqResolve = r; });
 window.claude = { use: function(n){ return window.__hqReady.then(function(api){ return api[n] || null; }); } };
 </script>
