@@ -849,6 +849,22 @@ button.opt:disabled{cursor:default}
 .r-sep{display:flex;align-items:center;gap:12px;color:var(--dim);margin:6px 0 10px}
 .r-sep::after{content:"";flex:1;height:1.5px;background:var(--line-2)}
 .reply{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;padding:12px 0 12px 14px;border-left:2px solid rgba(240,168,60,.55);margin:8px 0}
+.reply.child{margin:2px 0 8px 30px;padding-top:8px;padding-bottom:8px;grid-template-columns:28px minmax(0,1fr);gap:10px;border-left-color:rgba(240,168,60,.3)}
+.re-to{font-size:12px;color:var(--muted)}
+.r-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.r-act,.r-pill{display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:12.5px;line-height:1;padding:5px 9px;border:1px solid var(--line-2);background:transparent;color:var(--muted);cursor:pointer;border-radius:0}
+.r-act:hover,.r-pill:hover:not(:disabled){border-color:var(--line-3);color:var(--text)}
+.r-act.on{border-color:var(--amber);color:var(--text)}
+.r-pill{font-size:13px;color:var(--text)}
+.r-pill .mono{font-size:10.5px}
+.r-pill.mine{border-color:var(--amber);background:rgba(240,168,60,.14)}
+.r-pick{display:inline-flex;gap:2px;margin-top:6px;padding:4px;border:1px solid var(--line-2);background:var(--bg-2,#15131a)}
+.r-pick button{font-size:18px;line-height:1;padding:5px 7px;border:0;background:transparent;cursor:pointer;border-radius:0}
+.r-pick button:hover,.r-pick button.mine{background:rgba(240,168,60,.18)}
+.re-bar:empty{display:none}
+.re-bar{display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:6px;border-left:2px solid var(--amber);background:rgba(240,168,60,.08);font-size:13px;color:var(--muted)}
+.re-bar span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.re-bar b{color:var(--text)}
 .reply-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .reply-h b{font-size:14px}
 .reply-h .role{font-size:12px;color:var(--muted)}
@@ -1286,6 +1302,7 @@ button.opt:disabled{cursor:default}
   <div class="d-head" id="d-head"></div>
   <div class="d-body" id="d-body"></div>
   <div class="d-foot">
+    <div class="re-bar" id="d-re"></div>
     <div class="att-tray" id="d-att"></div>
     <div class="composer has-att">
       <label class="att-btn" title="Add photos or videos"><input type="file" id="d-file" accept="image/*,video/*" multiple aria-label="Add photos or videos"><span id="d-clip"></span></label>
@@ -2613,13 +2630,25 @@ function renderDrawer(){
     return `<button class="react${r && r.mine ? " mine" : ""}" data-react="${key}" ${canPost() ? "" : "disabled"} title="${esc(who)}" aria-pressed="${!!(r && r.mine)}">${g}${n ? `<span class="mono">${n}</span>` : ""}</button>`;
   }).join("")}</div>`;
   const reps = repliesFor(t.id);
-  const repsHTML = reps.map(r => {
+  const byId = new Map(reps.map(r => [r.id, r]));
+  const rootOf = r => { let x = r, n = 0; while (x.re && byId.has(x.re) && n++ < 20) x = byId.get(x.re); return x.id; };
+  const kids = new Map(); const tops = [];
+  for (const r of reps){ const root = r.re && byId.has(r.re) ? rootOf(r) : null; if (root && root !== r.id){ (kids.get(root) || kids.set(root, []).get(root)).push(r); } else tops.push(r); }
+  const oneRep = (r, child) => {
     const s = seatById(r.seat);
     const own = isMineBy(r.by, r.seat) && r.docId.endsWith("__" + myKey());
     const isAns = t.kind === "question" && t.answerId === r.id;
     const canAns = t.kind === "question" && !isAns && (mine || S.isOwner) && S.db && r.seat !== t.seat;
-    return `<div class="reply${isAns ? " is-answer" : ""}">${medal(s, 34)}<div>${isAns ? `<span class="ans-tag">✓ Answer</span>` : ""}<div class="reply-h"><b>${esc(seatName(s))}</b>${canAns ? `<button class="ans-btn" data-answer="${esc(r.id)}">✓ This answers it</button>` : ""}${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${ago(r.at)}</span>${own ? `<button class="del" data-del-reply="${esc(r.docId)}|${esc(r.id)}">Delete</button>` : ""}</div>${r.text ? `<div class="reply-t">${rich(r.text)}</div>` : ""}${mediaHTML(r.media)}</div></div>`;
-  }).join("");
+    const to = child && r.re && byId.has(r.re) ? seatById(byId.get(r.re).seat) : null;
+    const rr = S.idx.reacts.get(r.id) || {}, can = canPost();
+    const pills = REACTS.filter(([key]) => rr[key] && rr[key].seats.length).map(([key, g]) => `<button type="button" class="r-pill${rr[key].mine ? " mine" : ""}" data-creact="${esc(r.id)}|${key}" title="${esc(rr[key].seats.map(id => seatName(seatById(id))).join(", "))}" ${can ? "" : "disabled"}>${g}<span class="mono">${rr[key].seats.length}</span></button>`).join("");
+    const liked = rr.up && rr.up.mine;
+    const acts = `<div class="r-acts">${pills}${can ? `${liked ? "" : `<button type="button" class="r-act" data-creact="${esc(r.id)}|up">👍 Like</button>`}<button type="button" class="r-act${S.pickFor === r.id ? " on" : ""}" data-cpick="${esc(r.id)}" aria-label="Add a reaction" aria-expanded="${S.pickFor === r.id}">☺+</button><button type="button" class="r-act" data-creply="${esc(r.id)}">Reply</button>` : ""}</div>${can && S.pickFor === r.id ? `<div class="r-pick">${REACTS.map(([key, g]) => `<button type="button" class="${rr[key] && rr[key].mine ? "mine" : ""}" data-creact="${esc(r.id)}|${key}" aria-label="React ${g}">${g}</button>`).join("")}</div>` : ""}`;
+    return `<div class="reply${child ? " child" : ""}${isAns ? " is-answer" : ""}" data-rid="${esc(r.id)}">${medal(s, child ? 28 : 34)}<div>${isAns ? `<span class="ans-tag">✓ Answer</span>` : ""}<div class="reply-h"><b>${esc(seatName(s))}</b>${to ? `<span class="re-to">↳ ${esc(seatName(to))}</span>` : ""}${canAns ? `<button class="ans-btn" data-answer="${esc(r.id)}">✓ This answers it</button>` : ""}${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${ago(r.at)}</span>${own ? `<button class="del" data-del-reply="${esc(r.docId)}|${esc(r.id)}">Delete</button>` : ""}</div>${r.text ? `<div class="reply-t">${rich(r.text)}</div>` : ""}${mediaHTML(r.media)}${acts}</div></div>`;
+  };
+  const repsHTML = tops.map(r => oneRep(r, false) + (kids.get(r.id) || []).map(c => oneRep(c, true)).join("")).join("");
+  { const rt = S.replyTo && byId.get(S.replyTo); if (S.replyTo && !rt) S.replyTo = null;
+    $("#d-re").__h = rt ? `<span>Replying to <b>${esc(seatName(seatById(rt.seat)))}</b>${rt.text ? `: ${esc(rt.text.slice(0, 70))}${rt.text.length > 70 ? "…" : ""}` : ""}</span><button type="button" class="icon-btn" data-act="reply-cancel" aria-label="Cancel reply">${I.close}</button>` : ""; }
   const P = S.roster.projects || [], st = stepsOf(t), pr = progress(t), can = canPost();
   const planOpen = !!(S.planOpen && S.planOpen[t.id]);
   const pj = projOf(t.project), ow = seatById(t.owner), dueI = t.due ? dueInfo(t.due, topicDone(t)) : null;
@@ -2657,7 +2686,7 @@ function renderDrawer(){
   { const was = isUnread(t); S.seen.t[t.id] = Math.max(Date.now(), lastAct(t).at || 0); saveSeen(); if (was) schedule(); }
 }
 function openThread(id){
-  if (S.openId !== id){ const di = $("#d-input"); di.value = ""; clearAtt("d"); di.dispatchEvent(new Event("input")); }
+  if (S.openId !== id){ S.replyTo = null; S.pickFor = null; const di = $("#d-input"); di.value = ""; clearAtt("d"); di.dispatchEvent(new Event("input")); }
   S.openId = id; S.stickDrawer = false;
   const d = $("#drawer");
   if (S.view !== "topics") go("topics");
@@ -2990,12 +3019,13 @@ function sendChat(text, media){
   if (media && media.length) item.media = media;
   return appendItem("chatDocs", "chat", id, {ch:S.channel, wk, by:S.uid || null}, item);
 }
-function sendReply(tid, text, media){
+function sendReply(tid, text, media, re){
   { const t = S.threads.find(x => x.id === tid); track("reply", t ? (t.no ? "File " + topicNo(t) + " · " : "") + t.title : ""); }
   const id = `${tid}__${myKey()}`;
   S.stickDrawer = true;
   const item = {id:rid("r"), at:Date.now(), seat:S.mySeat, text};
   if (media && media.length) item.media = media;
+  if (re) item.re = re;
   return appendItem("replyDocs", "replies", id, {thread:tid, by:S.uid || null}, item);
 }
 function editMarks(fn){
@@ -3219,6 +3249,10 @@ document.addEventListener("click", e => {
   if ((el = q("[data-close-modal]"))){ closeModal(); return; }
   if ((el = q("[data-to]"))){ el.setAttribute("aria-pressed", el.getAttribute("aria-pressed") !== "true"); return; }
   if ((el = q("[data-vote]"))){ const tid = S.openId; if (tid && canPost()) toggleVote(tid, +el.dataset.vote); return; }
+  if ((el = q("[data-creact]"))){ const [cid, g] = el.dataset.creact.split("|"); if (canPost()){ toggleReact(cid, g); S.pickFor = null; } return; }
+  if ((el = q("[data-cpick]"))){ S.pickFor = S.pickFor === el.dataset.cpick ? null : el.dataset.cpick; schedule(); return; }
+  if ((el = q("[data-creply]"))){ if (canPost()){ S.replyTo = el.dataset.creply; S.pickFor = null; schedule(); setTimeout(() => $("#d-input").focus(), 30); } return; }
+  if ((el = q('[data-act="reply-cancel"]'))){ S.replyTo = null; schedule(); return; }
   if ((el = q("[data-react]"))){ if (S.openId && canPost()) toggleReact(S.openId, el.dataset.react); return; }
   if ((el = q("[data-seal]"))){ if (S.openId) updateThread(S.openId, {status:"decided", decided:+el.dataset.seal, decidedBy:S.mySeat || null, decidedAt:Date.now(), statusAt:Date.now()}); return; }
   if ((el = q("[data-answer]"))){ const t = S.threads.find(x => x.id === S.openId), id = el.dataset.answer; if (t) updateThread(t.id, id ? {status:"answered", answerId:id, statusAt:Date.now()} : {status:"open", answerId:null, statusAt:Date.now()}); return; }
@@ -3380,7 +3414,7 @@ $("#nt-form").addEventListener("submit", async e => {
 });
 wireComposer($("#chat-input"), $("#chat-send"), v => { if (canPost()){ sendChat(v, attReady("c")); clearAtt("c", true); setPresence({typing:null}); } }, typing, {ready:() => attReady("c").length > 0, busy:() => attBusy("c")});
 $("#c-clip").innerHTML = I.clip;
-wireComposer($("#d-input"), $("#d-send"), v => { if (canPost() && S.openId){ sendReply(S.openId, v, attReady("d")); clearAtt("d", true); } }, null, {ready:() => attReady("d").length > 0, busy:() => attBusy("d")});
+wireComposer($("#d-input"), $("#d-send"), v => { if (canPost() && S.openId){ sendReply(S.openId, v, attReady("d"), S.replyTo); S.replyTo = null; S.pickFor = null; clearAtt("d", true); } }, null, {ready:() => attReady("d").length > 0, busy:() => attBusy("d")});
 $("#d-clip").innerHTML = I.clip;
 document.addEventListener("change", e => {
   if (e.target && (e.target.id === "d-file" || e.target.id === "nt-file" || e.target.id === "c-file" || e.target.id === "nd-file")){ const w = e.target.id.split("-")[0]; const fl = [...(e.target.files || [])]; e.target.value = ""; if (w !== "nt" && !canPost()) return; addFiles(w, fl); }
