@@ -703,6 +703,37 @@ button.opt:disabled{cursor:default}
 .opt{background:#0E0C14}
 .opt-bar{background:color-mix(in srgb,var(--k-decision) 16%,transparent)}
 .opt.mine{border-color:color-mix(in srgb,var(--k-decision) 70%,transparent);box-shadow:none}
+/* posts: a clean feed - who, what, the title, the text, and a quiet footer */
+.board:not(.list){gap:0!important;border-top:1px solid rgba(243,239,232,.08)}
+.card.post{flex-direction:row;gap:14px;padding:18px 18px 16px 20px;border:0;border-bottom:1px solid rgba(243,239,232,.08);background:#08070C;overflow:visible}
+.card.post::before{content:"";position:absolute;left:0;top:20px;bottom:18px;width:3px;background:var(--kc);opacity:.6}
+.card.post:hover,.card.post:focus-visible{background:#0D0B12;border-color:rgba(243,239,232,.08);outline:none}
+.card.post.pinned{background:#100D0B}
+.p-av{flex:none;padding-top:1px}
+.p-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.p-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13.5px;line-height:1.3;color:var(--muted)}
+.p-meta b{color:var(--text);font-weight:700}
+.p-verb{color:var(--kc)}
+.p-dot{color:var(--dim)}
+.p-pin,.p-new{margin-left:4px;font:700 10px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px}
+.p-pin{background:rgba(243,239,232,.09);color:var(--cream)}
+.p-new{background:var(--amber);color:var(--void)}
+.card.post h3,.board:not(.list) .card.post h3{margin:2px 0 0;font:700 19px/1.3 var(--f-body);letter-spacing:-.01em;text-transform:none}
+.card.post .excerpt{color:#BDB7C6;font-size:15px;line-height:1.55;-webkit-line-clamp:3}
+.p-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:3px;font-size:13px;color:var(--muted)}
+.p-foot .pf{display:inline-flex;align-items:center;gap:6px}
+.p-foot svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.p-foot .stack{margin-left:4px}
+.p-foot .p-last{color:var(--dim);margin-left:auto}
+.card.post .pill{border:0;padding:0;background:none;font:600 12px/1.3 var(--f-body);letter-spacing:0;text-transform:none;transform:none}
+.card.post .pill.wait{color:var(--amber)} .card.post .pill.ok{color:var(--lime)} .card.post .pill.done{color:var(--k-decision)}
+.card.post .pill::before{content:"●";margin-right:6px;font-size:9px;vertical-align:1px}
+.card.post .tmeta{margin-top:2px}
+.card.post .opts{margin-top:4px}
+.board.list .card.post{padding:12px 16px 12px 18px}
+.board.list .card.post .excerpt,.board.list .card.post .opts,.board.list .card.post .to{display:none}
+.board.list .card.post .p-av .medal{--s:30px!important}
+@media (max-width:640px){.card.post{padding:16px 12px 14px 16px;gap:11px}.p-av .medal{--s:32px!important}.card.post h3{font-size:17.5px}.p-foot .p-last{display:none}}
 /* the plan block stays folded until you need it */
 .plan-tog{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 14px;padding:9px 12px;border:1px dashed var(--line-2);background:transparent;color:var(--muted);font:600 10px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-align:left}
 .plan-tog:hover,.plan-tog.on{border-color:var(--amber);color:var(--text)}
@@ -1781,13 +1812,17 @@ function cardHTML(t){
   if (ow) tm += `<span class="owner">${medal(ow, 18)}${esc(seatName(ow))}</span>`;
   if (tm) special = `<div class="tmeta">${tm}</div>` + special;
   if (pr) special += `<div class="prog"><div class="prog-bar"><i style="width:${Math.round(100 * pr.done / pr.all)}%"></i></div><span class="mono">${pr.done}/${pr.all} steps</span></div>`;
-  return `<article class="card k-${k}${wide ? " wide" : ""}${t.pinned ? " pinned" : ""}${S.openId === t.id ? " is-open" : ""}" tabindex="0" data-open="${esc(t.id)}" style="--kc:var(--k-${k})" aria-label="${esc(KINDS[k].label + ": " + t.title)}">
-    ${t.no ? `<span class="no" aria-hidden="true">${pad2(t.no)}</span>` : ""}
-    <div class="card-band">${kbadge(k, true)}<span class="tag-m kind-label">${t.no ? "File " + topicNo(t) + " · " : ""}${KINDS[k].label}</span>${statusPill(t)}<span class="spacer"></span>${t.pinned ? `<span class="pin-i" title="Pinned">${I.pin}</span>` : ""}${isUnread(t) ? '<span class="unread" title="New activity"></span>' : ""}<span class="mono">${ago(lastAct(t).at)}</span></div>
-    <h3>${esc(t.title)}</h3>
-    ${t.body ? `<p class="excerpt">${esc(t.body)}</p>` : ""}
-    ${special}
-    <div class="card-foot">${medal(seat, 24)}<span><b>${esc(seatName(seat))}</b></span><span class="spacer"></span>${mediaCount(t) ? `<span class="replies" title="Photos and videos"><span class="ic">${I.clip}</span><span class="mono">${mediaCount(t)}</span></span>` : ""}${reactMini(t.id)}<span class="replies" title="${esc(plural(reps.length, "reply", "replies"))}"><span class="ic">${I.reply}</span><span class="mono">${reps.length}</span>${repliers.length ? `<span class="stack">${repliers.map(s => medal(s, 20)).join("")}</span>` : ""}</span></div>
+  const verb = {question:"asks", idea:"has an idea", decision:"calls a vote", note:"posted a note"}[k];
+  const mc = mediaCount(t);
+  return `<article class="card post k-${k}${t.pinned ? " pinned" : ""}${S.openId === t.id ? " is-open" : ""}" tabindex="0" data-open="${esc(t.id)}" style="--kc:var(--k-${k})" aria-label="${esc(KINDS[k].label + ": " + t.title)}">
+    <div class="p-av">${medal(seat, 38)}</div>
+    <div class="p-main">
+      <div class="p-meta"><b>${esc(seatName(seat))}</b><span class="p-verb">${verb}</span><span class="p-dot">·</span><span>${ago(t.at)}</span>${t.pinned ? `<span class="p-pin">Pinned</span>` : ""}${isUnread(t) ? `<span class="p-new">New</span>` : ""}</div>
+      <h3>${esc(t.title)}</h3>
+      ${t.body ? `<p class="excerpt">${esc(t.body)}</p>` : ""}
+      ${special}
+      <div class="p-foot">${statusPill(t)}<span class="pf">${I.reply}${reps.length ? plural(reps.length, "reply", "replies") : "Reply"}${repliers.length ? `<span class="stack">${repliers.map(s => medal(s, 18)).join("")}</span>` : ""}</span>${mc ? `<span class="pf">${I.clip}${mc}</span>` : ""}${reactMini(t.id)}${reps.length ? `<span class="pf p-last">Last ${ago(lastAct(t).at)}</span>` : ""}</div>
+    </div>
   </article>`;
 }
 const projOf = id => (S.roster.projects || []).find(p => p.id === id) || null;
