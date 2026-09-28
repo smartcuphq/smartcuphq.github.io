@@ -785,6 +785,11 @@ button.opt:disabled{cursor:default}
 .d-no{font-size:74px}
 .d-text{font-size:14px}
 .d-body{padding:16px 18px 20px}
+/* lighter on phones and slower machines */
+#board > .card,.chat-in > .msg,.nd-list > .nd-card{content-visibility:auto;contain-intrinsic-size:auto 160px}
+.chat-in > .msg{contain-intrinsic-size:auto 56px}
+*{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+@media (max-width:860px){.fx-scan,.fx-sweep{display:none}.bokeh i{filter:blur(30px)}}
 /* the accepted answer */
 .reply.is-answer{background:rgba(198,255,61,.05);box-shadow:inset 3px 0 0 var(--lime)}
 .ans-tag{display:inline-block;margin-bottom:4px;padding:2px 7px;background:var(--lime);color:var(--void);font:800 9.5px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
@@ -1403,6 +1408,8 @@ window.claude = { use: function(n){ return window.__hqReady.then(function(api){ 
 "use strict";
 
 /* ---------- constants ---------- */
+/* set innerHTML only when it changed: redraws stay cheap when little changed */
+Object.defineProperty(Element.prototype, "__h", {configurable:true, set(v){ if (this.__hv !== v){ this.innerHTML = v; this.__hv = v; } }});
 const I = {
   topics:'<svg viewBox="0 0 24 24"><path d="M4 4.5h7v7H4zM13 4.5h7v4h-7zM13 10.5h7v9h-7zM4 13.5h7v6H4z"/></svg>',
   send:'<svg viewBox="0 0 24 24"><path d="M4.5 12 19.5 4.5l-5.5 15-3-6.5z"/><path d="M11 13l8.5-8.5"/></svg>',
@@ -1575,6 +1582,7 @@ function initial(seat){ const src = (seatName(seat) || "?"); return Array.from(s
 function medal(seat, size=30, opt={}){
   if (!seat) return `<span class="medal ghost" style="--s:${size}px" aria-hidden="true"></span>`;
   const e = cup(opt.color || colorOf(seat)), ph = opt.photo !== undefined ? opt.photo : (own(seat) || {}).photo;
+  if (ph && opt.photo === undefined) return `<span class="medal photo ph-${esc(seat.id)}${opt.glow ? " glow" : ""}${opt.dim ? " dimmed" : ""}" style="--s:${size}px;--c:${e.c};--cf:${e.f}" aria-hidden="true"></span>`;
   if (ph) return `<span class="medal photo${opt.glow ? " glow" : ""}${opt.dim ? " dimmed" : ""}" style="--s:${size}px;--c:${e.c};--cf:${e.f};background-image:url('${esc(ph)}')" aria-hidden="true"></span>`;
   return `<span class="medal${opt.glow ? " glow" : ""}${opt.dim ? " dimmed" : ""}" style="--s:${size}px;--c:${e.c};--cf:${e.f}" aria-hidden="true">${esc(initial(seat))}</span>`;
 }
@@ -1666,14 +1674,14 @@ function dock(state, note){
 }
 function renderDock(){
   let office = 0, remote = 0;
-  $("#who-list").innerHTML = seats().map(s => {
+  $("#who-list").__h = seats().map(s => {
     const d = seatDock(s.id);
     if (d && d.state === "office") office++;
     if (d && d.state === "remote") remote++;
     const on = S.online.has(s.id) && !!S.room;
     return `<div class="dcup">${medal(s, 34, {glow:d && d.state === "office", dim:!d || d.state === "off"})}<div class="meta"><b>${esc(seatName(s))}${s.id === S.mySeat ? '<span class="you">YOU</span>' : ""}</b>${d ? dockChip(d) : `<span class="dchip">${on ? "Online · not checked in" : "Not checked in"}</span>`}${d && d.note ? `<em>${esc(d.note)}</em>` : ""}</div></div>`;
   }).join("");
-  $("#who-sum").innerHTML = `<b>${office}</b> office · <b>${remote}</b> remote`;
+  $("#who-sum").__h = `<b>${office}</b> office · <b>${remote}</b> remote`;
   const mine = myDock(); const can = canPost();
   document.querySelectorAll("[data-dock]").forEach(b => {
     b.disabled = !can;
@@ -1807,16 +1815,16 @@ function renderRail(){
   $("#nav-activity").hidden = !S.isOwner; $("#nav-activity").setAttribute("aria-current", S.view === "activity");
   { const no = needsOpen(); $("#badge-needs").textContent = no.length ? no.length : ""; }
   const ut = S.threads.filter(isUnread).length; $("#badge-topics").textContent = ut ? ut : "";
-  $("#rail-channels").innerHTML = R.channels.map(c => {
+  $("#rail-channels").__h = R.channels.map(c => {
     const u = chanUnread(c.id);
     return `<button class="nav-btn" data-chan="${esc(c.id)}" aria-current="${S.view === "chat" && S.channel === c.id}"><span class="hash">#</span><span class="nav-t">${esc(c.name)}</span><span class="badge">${u || ""}</span></button>`;
   }).join("");
   const PJ = R.projects || [];
   $("#rail-projects-h").hidden = !PJ.length;
-  $("#rail-projects").innerHTML = PJ.map(p => { const n = S.threads.filter(t => t.project === p.id && !topicDone(t)).length; return `<button class="nav-btn" data-project="${esc(p.id)}" aria-current="${S.view === "topics" && S.project === p.id}"><span class="pdot" style="--pc:${cup(p.color).c}"></span><span class="nav-t">${esc(p.name)}</span><span class="mono">${n || ""}</span></button>`; }).join("");
+  $("#rail-projects").__h = PJ.map(p => { const n = S.threads.filter(t => t.project === p.id && !topicDone(t)).length; return `<button class="nav-btn" data-project="${esc(p.id)}" aria-current="${S.view === "topics" && S.project === p.id}"><span class="pdot" style="--pc:${cup(p.color).c}"></span><span class="nav-t">${esc(p.name)}</span><span class="mono">${n || ""}</span></button>`; }).join("");
   const onCount = R.seats.filter(s => S.online.has(s.id)).length;
-  $("#online-count").innerHTML = S.room ? `<b>${onCount}</b> online` : "";
-  $("#rail-seats").innerHTML = R.seats.map(s => {
+  $("#online-count").__h = S.room ? `<b>${onCount}</b> online` : "";
+  $("#rail-seats").__h = R.seats.map(s => {
     const on = S.online.has(s.id) && !!S.room, me = s.id === S.mySeat;
     const d = seatDock(s.id);
     const tags = (s.admin ? '<span class="tag">Admin</span>' : "") + (s.decider ? '<span class="tag gold">Final say</span>' : "");
@@ -1835,7 +1843,7 @@ function renderRail(){
     foot += `<button class="btn primary" data-act="switch-seat">Pick your seat</button>`;
   }
   if (S.isOwner) foot += `<button class="admin-btn" data-view="admin" aria-current="${S.view === "admin"}"><span class="ic">${I.gear}</span>Team settings</button>`;
-  $("#rail-foot").innerHTML = foot;
+  $("#rail-foot").__h = foot;
   $("#rail-foot").hidden = !foot;
 }
 
@@ -2039,7 +2047,7 @@ function renderCup(){
     const st = d ? DOCK[d.state].short : on ? "ONLINE" : "";
     sats += `<g class="sat${on ? " on" : ""}" transform="translate(${x} ${y})" style="--c:${c.c}">${d && d.state === "office" ? '<circle class="ring" r="14"/>' : ""}<circle class="dot" r="14" fill="${c.c}"/><text class="ini" y="4.6" fill="${c.f}">${esc(initial(s))}</text><text class="lbl ${above ? "above" : "below"}" y="${above ? -21 : 28}">${esc(trunc(seatName(s).toUpperCase(), 12))}</text>${st ? `<text class="st ${d ? DOCK[d.state].cls : ""}" y="${above ? -31 : 38}">${st}</text>` : ""}</g>`;
   });
-  $("#cup-links").innerHTML = links; $("#cup-sats").innerHTML = sats;
+  $("#cup-links").__h = links; $("#cup-sats").__h = sats;
   /* the whole crew online is a match: the cup plays the prototype's match moment */
   const matched = list.length > 1 && onl >= list.length;
   if (CUPLED.matched !== matched){
@@ -2070,7 +2078,7 @@ function renderHero(){
   const dayNo = Math.floor((now.getTime() - now.getTimezoneOffset() * 6e4) / 864e5);
   $("#h-line").textContent = LINES[dayNo % LINES.length];
   const sp = S.roster.space; const goal = (sp.goal || "").trim(); const days = goal ? daysTo(sp.goalDate) : null;
-  $("#h-north").innerHTML = goal ? `<span class="sq"></span><span>Next stop</span><b>${esc(goal)}</b>${days != null ? `<span>· ${days > 0 ? plural(days, "day", "days") + " to go" : days === 0 ? "today" : plural(-days, "day", "days") + " over"}</span>` : (S.isOwner ? `<button type="button" class="set" data-view="admin">Set a date</button>` : "")}` : "";
+  $("#h-north").__h = goal ? `<span class="sq"></span><span>Next stop</span><b>${esc(goal)}</b>${days != null ? `<span>· ${days > 0 ? plural(days, "day", "days") + " to go" : days === 0 ? "today" : plural(-days, "day", "days") + " over"}</span>` : (S.isOwner ? `<button type="button" class="set" data-view="admin">Set a date</button>` : "")}` : "";
   renderCup();
 }
 function renderInstr(){
@@ -2081,7 +2089,7 @@ function renderInstr(){
   const done = T.filter(t => ["answered","decided","accepted"].includes(t.status) && (t.statusAt || t.decidedAt || 0) > wk).length;
   const off = seats().filter(s => { const d = seatDock(s.id); return d && d.state === "office"; }).length;
   const cell = (key, n, label, cls) => `<button type="button" data-instr="${key}" class="${cls}"><b>${n}</b><span>${label}</span></button>`;
-  $("#instr").innerHTML = cell("q", q, "Open questions", q ? "hot" : "")
+  $("#instr").__h = cell("q", q, "Open questions", q ? "hot" : "")
     + cell("i", i, "Ideas in play", i ? "hot" : "")
     + cell("c", c, "Calls to make", c ? "hot" : "")
     + cell("done", done, "Settled this week", done ? "good" : "")
@@ -2195,7 +2203,7 @@ function renderActivity(){
   const top = people[0] && people[0].e && people[0].e.ms ? seatName(people[0].s) : "—";
   const activeNow = seats().filter(s => S.online.has(s.id)).length;
   const lbl = range === 1 ? "today" : "last " + range + " days";
-  box.innerHTML = `<div class="hero"><div class="kick"><span>Admin · Team activity</span></div><h1>Who's<br><span>been in</span></h1><p>Time each person was active in HQ (idle time and closed tabs don't count), where they spent it and what they did.</p><div class="ac-lock">🔒 <b>Only you</b> can open this page. The team can't read it.</div>
+  box.__h = `<div class="hero"><div class="kick"><span>Admin · Team activity</span></div><h1>Who's<br><span>been in</span></h1><p>Time each person was active in HQ (idle time and closed tabs don't count), where they spent it and what they did.</p><div class="ac-lock">🔒 <b>Only you</b> can open this page. The team can't read it.</div>
       <div class="ac-lock" style="margin-left:8px">${S.trErr ? `<span style="color:var(--red)">✕ This device can't save time: ${S.trErr.code === "invalid_argument" ? "Firebase Rules refused it (check the activity block)" : "no connection to Firebase"}</span>` : S.trOk ? `<b>✓</b> This device is counting · last saved ${clock(S.trOk)} · unsaved ${hm(TR.ms) || "0s"}` : `Counting starts… first save within a minute · unsaved ${hm(TR.ms) || "0s"}`}</div></div>
     <div class="ac-bar"><div class="seg">${[[1, "Today"], [7, "7 days"], [30, "30 days"]].map(([n, l]) => `<button type="button" data-ac-range="${n}" aria-pressed="${range === n}">${l}</button>`).join("")}</div><button type="button" class="btn sm ghost" data-ac-reload>${S.acLoading ? "Loading…" : "Refresh"}</button>${S.acAt ? `<span class="mono">Updated ${clock(S.acAt)}</span>` : ""}</div>
     ${S.acErr ? `<div class="ac-empty">Couldn't load activity. If you just added the new rule in Firebase, wait a minute and press Refresh.</div>` : ""}
@@ -2273,7 +2281,7 @@ function renderNeeds(){
   const urgent = need.filter(n => n.urgent).length, late = way.filter(n => n.eta && daysTo(n.eta) < 0).length;
   const P = S.roster.projects || [], can = canPost();
   const col = (k, list, cap) => { const shown = cap && !S.ndAllHave ? list.slice(0, cap) : list; return `<section class="nd-col ${k}${S.ndTab === k ? " on" : ""}"><div class="nd-col-h">${NDI[k]}<b>${ND[k].shelf}</b><span class="mono">${list.length}</span></div><div class="nd-list">${shown.length ? shown.map(ndCard).join("") : `<div class="nd-empty">${k === "need" ? "Nothing missing right now. Add what blocks you above." : k === "way" ? "Nothing ordered yet. When someone orders a need, it moves here with its arrival date." : "Things that arrived show up here."}</div>`}${cap && list.length > cap ? `<button type="button" class="nd-more" data-nd-allhave>${S.ndAllHave ? "Show less" : "+ " + (list.length - cap) + " more"}</button>` : ""}</div></section>`; };
-  box.innerHTML = `<div class="hero"><div class="kick"><span>SEC 04 · Parts, tools, anything</span></div><h1>The parts<br><span>wall</span></h1><p>Pin what you need and why. Whoever sorts it moves the tag to <em>in transit</em> with an arrival date, then onto <em>the shelf</em>.</p></div>
+  box.__h = `<div class="hero"><div class="kick"><span>SEC 04 · Parts, tools, anything</span></div><h1>The parts<br><span>wall</span></h1><p>Pin what you need and why. Whoever sorts it moves the tag to <em>in transit</em> with an arrival date, then onto <em>the shelf</em>.</p></div>
     <div class="nd-stats"><button type="button" class="s-need" data-nd-tab="need" aria-pressed="${S.ndTab === "need"}"><b>${need.length}</b><span>Needed${urgent ? ` · <em>${urgent} urgent</em>` : ""}</span></button><button type="button" class="s-way" data-nd-tab="way" aria-pressed="${S.ndTab === "way"}"><b>${way.length}</b><span>In transit${late ? ` · <em>${late} late</em>` : ""}</span></button><button type="button" class="s-have" data-nd-tab="have" aria-pressed="${S.ndTab === "have"}"><b>${have.length}</b><span>On the shelf</span></button></div>
     ${can && !S.ndOpen ? `<button type="button" class="nd-cta" data-nd-open><span class="plus">+</span><span><b>Pin a need to the wall</b><small>A part, a tool, a sample, access, an answer: anything that blocks the work.</small></span></button>` : ""}
     ${can && S.ndOpen ? `<form class="nd-add" id="nd-add" autocomplete="off"><div class="t"><span class="tag-m">New tag</span><span class="spacer" style="flex:1"></span></div>
@@ -2366,8 +2374,11 @@ function activity(){
   }
   return ev;
 }
+let pingFrom = [];
 function pingCheck(){
   if (!S.loaded.threads) return;
+  const pk = [S.threads, S.replyDocs, S.chatDocs, S.needs, S.idx, S.seen && JSON.stringify(S.seen).length, S.view, S.channel, document.visibilityState];
+  if (pk.every((x, i) => x === pingFrom[i])) return; pingFrom = pk;
   const ev = activity(), top = ev.reduce((m, e) => Math.max(m, e.at || 0), 0);
   if (S.pingAt == null){ S.pingAt = Math.max(top, Date.now() - 1000); return; }
   const fresh = ev.filter(e => e.at > S.pingAt).sort((a, b) => a.at - b.at);
@@ -2419,7 +2430,7 @@ function runSheet(mine){
 }
 function renderLive(){
   const mine = S.unScope !== "team" && !!S.mySeat;
-  $("#un-seg").innerHTML = [["mine", "Mine"], ["team", "Team"]].map(([k, l]) => `<button type="button" data-un-scope="${k}" aria-pressed="${(k === "mine") === mine}"${k === "mine" && !S.mySeat ? " disabled" : ""}>${l}</button>`).join("");
+  $("#un-seg").__h = [["mine", "Mine"], ["team", "Team"]].map(([k, l]) => `<button type="button" data-un-scope="${k}" aria-pressed="${(k === "mine") === mine}"${k === "mine" && !S.mySeat ? " disabled" : ""}>${l}</button>`).join("");
   const R = runSheet(mine), can = canPost();
   const stat = (cls, n, label) => `<div class="${cls}${n ? " on" : ""}"><b>${n}</b><span>${label}</span></div>`;
   let h = `<div class="un-stats">${stat("late", R.late, "Late")}${stat("wk", R.week, "Due in 7 days")}${stat("ok", R.doneWk, "Done this week")}</div>`;
@@ -2440,7 +2451,7 @@ function renderLive(){
       return `<button type="button" class="un-p" data-project="${esc(p.id)}" style="--pc:${cup(p.color).c}" aria-label="${esc(p.name)}: ${w}% done"><span class="n">${esc(p.name)}</span><span class="c"><b>${d}</b>/${a} · ${w}%</span><span class="bar"><i style="width:${w}%"></i></span></button>`;
     }).join("") + `</div>`;
   }
-  $("#live").innerHTML = h;
+  $("#live").__h = h;
 }
 function renderTopics(){
   const open = S.threads.filter(t => !topicDone(t)).length;
@@ -2450,7 +2461,7 @@ function renderTopics(){
   const can = canPost();
   $("#prompt-in").disabled = !can;
   $("#prompt-t").textContent = can ? "What's on your mind?" : (S.mySeat ? "Posting isn't available right now" : "Pick your seat to post");
-  $("#kinds").innerHTML = KIND_ORDER.map(k => `<button type="button" class="pk" data-new="${k}" style="--kc:var(--k-${k})" title="${KINDS[k].verb}: ${KINDS[k].hint.toLowerCase()}" ${can ? "" : "disabled"}>${kbadge(k, true)}${KINDS[k].btn}</button>`).join("");
+  $("#kinds").__h = KIND_ORDER.map(k => `<button type="button" class="pk" data-new="${k}" style="--kc:var(--k-${k})" title="${KINDS[k].verb}: ${KINDS[k].hint.toLowerCase()}" ${can ? "" : "disabled"}>${kbadge(k, true)}${KINDS[k].btn}</button>`).join("");
   const count = k => S.threads.filter(t => k === "all" || t.kind === k).length;
   $("#filters").innerHTML =
     [["all","All files"], ...KIND_ORDER.map(k => [k, KINDS[k].plural])].map(([k, l]) => `<button type="button" class="chip" data-filter="${k}" aria-pressed="${S.filter === k}">${l}<span class="n">${count(k)}</span></button>`).join("")
@@ -2501,7 +2512,7 @@ function renderChat(){
   $("#chat-input").placeholder = canPost() ? (ch.dm ? `Message ${ch.name} privately…` : `Message #${ch.name}…`) : (S.mySeat ? "You can't post right now" : "Pick your seat first");
   $("#chat-input").disabled = !canPost();
   const onl = seats().filter(s => S.online.has(s.id) && S.room);
-  $("#chat-online").innerHTML = onl.map(s => medal(s, 24, {glow:true})).join("");
+  $("#chat-online").__h = onl.map(s => medal(s, 24, {glow:true})).join("");
   $("#chat-online").title = onl.map(s => seatName(s)).join(", ");
   const sc = $("#chat-scroll");
   const atBottom = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 80;
@@ -2528,11 +2539,11 @@ function renderChat(){
     </div>`;
     prev = m;
   }
-  $("#chat-list").innerHTML = html; hydrateMedia($("#chat-list"));
+  $("#chat-list").__h = html; hydrateMedia($("#chat-list"));
   if (atBottom || S.stickChat){ sc.scrollTop = sc.scrollHeight; S.stickChat = false; }
   const typers = S.peers.filter(p => !p.isMe && p.presence && p.presence.typing === ch.id && typeof p.presence.seat === "string").map(p => seatById(p.presence.seat)).filter(Boolean);
   const uniq = [...new Map(typers.map(s => [s.id, s])).values()];
-  $("#typing").innerHTML = uniq.length ? `<i><b></b><b></b><b></b></i>${esc(uniq.map(s => seatName(s)).join(", "))} ${uniq.length > 1 ? "are" : "is"} typing…` : "";
+  $("#typing").__h = uniq.length ? `<i><b></b><b></b><b></b></i>${esc(uniq.map(s => seatName(s)).join(", "))} ${uniq.length > 1 ? "are" : "is"} typing…` : "";
   if (document.visibilityState === "visible" && S.view === "chat"){ S.seen.ch[ch.id] = Date.now(); saveSeen(); }
 }
 
@@ -2545,7 +2556,7 @@ function renderDrawer(){
   const mine = isMineBy(t.by, t.seat);
   const canMod = S.isOwner || mine;
   $("#drawer").style.setProperty("--kc", `var(--k-${k})`);
-  $("#d-head").innerHTML = `${kbadge(k, true)}<span class="tag-m" style="color:var(--k-${k})">${KINDS[k].label}${t.no ? " " + topicNo(t) : ""}</span>${statusPill(t)}<span class="spacer"></span>
+  $("#d-head").__h = `${kbadge(k, true)}<span class="tag-m" style="color:var(--k-${k})">${KINDS[k].label}${t.no ? " " + topicNo(t) : ""}</span>${statusPill(t)}<span class="spacer"></span>
     ${S.isOwner ? `<button class="btn ghost sm" data-act="pin">${I.pin}${t.pinned ? "Unpin" : "Pin"}</button>` : ""}
     ${canMod && S.db && S.editId !== t.id ? `<button class="btn ghost sm" data-act="edit">${I.edit}Edit</button>` : ""}
     ${canMod && S.db ? `<button class="btn ghost sm" data-act="del-thread">${I.trash}Delete</button>` : ""}
@@ -2606,7 +2617,7 @@ function renderDrawer(){
   const keepV = {}; ["step-text", "step-seat", "step-due", "ed-title", "ed-body"].forEach(id => { const x = document.getElementById(id); if (x) keepV[id] = x.value; });
   const keep = body.scrollTop, atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
   const editing = S.editId === t.id && canMod;
-  body.innerHTML = `${t.no ? `<span class="d-no" aria-hidden="true">${pad2(t.no)}</span>` : ""}${editing ? `<form class="ed-form" id="ed-form" autocomplete="off"><label class="fld"><span>Title</span><input id="ed-title" maxlength="140" required value="${esc(t.title)}"></label><label class="fld"><span>Text</span><textarea id="ed-body" rows="7" maxlength="4000">${esc(t.body || "")}</textarea></label><div class="ed-row"><button type="button" class="btn ghost sm" data-act="edit-cancel">Cancel</button><button type="submit" class="btn primary sm">Save changes</button></div></form>` : `<h2 class="d-title">${esc(t.title)}</h2>`}
+  body.__h = `${t.no ? `<span class="d-no" aria-hidden="true">${pad2(t.no)}</span>` : ""}${editing ? `<form class="ed-form" id="ed-form" autocomplete="off"><label class="fld"><span>Title</span><input id="ed-title" maxlength="140" required value="${esc(t.title)}"></label><label class="fld"><span>Text</span><textarea id="ed-body" rows="7" maxlength="4000">${esc(t.body || "")}</textarea></label><div class="ed-row"><button type="button" class="btn ghost sm" data-act="edit-cancel">Cancel</button><button type="submit" class="btn primary sm">Save changes</button></div></form>` : `<h2 class="d-title">${esc(t.title)}</h2>`}
     <div class="d-meta">${medal(author, 38)}<div class="who"><b>${esc(seatName(author))}</b><span>${esc(seatSub(author) || "")}${seatSub(author) ? " · " : ""}${dayLabel(t.at)}, ${clock(t.at)}</span></div>
     ${(t.to || []).length ? `<span class="spacer"></span><div class="to"><span class="tag-m">${k === "question" ? "Asking" : "For"}</span>${t.to.map(chipSeat).join("")}</div>` : ""}</div>
     ${!editing && t.body ? `<div class="d-text">${rich(t.body)}</div>` : ""}${t.editedAt && !editing ? `<div class="d-edited mono">Edited ${esc(dayLabel(t.editedAt))}, ${clock(t.editedAt)}</div>` : ""}${mediaHTML(t.media)}
@@ -2716,7 +2727,7 @@ async function saveMe(name, color, photo){
   const doc = {name, color:color && color !== me.color ? color : "", photo:photo || "", by:S.uid || null, at:Date.now()};
   try {
     if (!doc.name && !doc.color && !doc.photo){ if (own(me)) await S.db.doc("names/" + me.id).delete(); S.names.delete(me.id); }
-    else { await S.db.doc("names/" + me.id).set(doc); S.names.set(me.id, {id:me.id, ...doc}); }
+    else { await S.db.doc("names/" + me.id).set(doc); S.names.set(me.id, {id:me.id, ...doc}); photoFrom = null; }
     schedule(); return true;
   } catch (e){ writeErr(e); return false; }
 }
@@ -2750,7 +2761,7 @@ function renderProfile(){
   let comments = 0; for (const arr of S.idx.replies.values()) comments += arr.filter(r => r.seat === me.id).length;
   const needs = [...S.needs.values()].filter(n => n.seat === me.id).length;
   const c = cup(P.color);
-  box.innerHTML = `<div class="pf-hero" style="--pc:${c.c}">
+  box.__h = `<div class="pf-hero" style="--pc:${c.c}">
       <div class="pf-av">${medal(me, 132, {color:P.color, photo:P.photo, glow:true})}<label class="pf-cam" title="Change photo">${I.camera}<input type="file" id="pf-file" accept="image/*"></label></div>
       <div class="pf-id"><div class="kick"><span>My profile</span></div><h1>${esc(P.name || seatName(me))}</h1><p>${esc(me.role || "Member")}${me.decider ? " · Final say" : ""}${me.admin ? " · Admin" : ""}</p>
         <div class="pf-stats"><div><b>${posts.length}</b><span>Posts</span></div><div><b>${comments}</b><span>Comments</span></div><div><b>${needs}</b><span>Needs pinned</span></div></div></div>
@@ -3075,8 +3086,27 @@ function go(view){
 /* ---------- render loop ---------- */
 let raf = 0;
 function schedule(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; renderAll(); }); }
+let photoCss = null;
+let photoFrom = null;
+function photoStyles(){
+  if (S.names === photoFrom) return; photoFrom = S.names;
+  const css = [...S.names.values()].filter(n => n && n.photo && /^data:image\//.test(n.photo)).map(n => `.ph-${CSS.escape(n.id)}{background-image:url("${n.photo}")}`).join("\n");
+  if (css === photoCss) return; photoCss = css;
+  let el = document.getElementById("ph-css"); if (!el){ el = document.createElement("style"); el.id = "ph-css"; document.head.appendChild(el); }
+  el.textContent = css;
+}
+let derivedFrom = [];
+function deriveIfChanged(){
+  /* snapshots replace these maps and local edits call derive() themselves, so same maps = same indexes */
+  const k = [S.replyDocs, S.markDocs, S.chatDocs, S.eff && S.eff.byUid, myKey()];
+  if (S.idx && k.every((x, i) => x === derivedFrom[i])) return;
+  derive(); derivedFrom = k;
+}
 function renderAll(){
-  derive(); updateOnline();
+  deriveIfChanged(); updateOnline();
+  /* in the background only keep counts and pings up to date; draw when the app is back */
+  if (document.visibilityState === "hidden"){ pingCheck(); return; }
+  photoStyles();
   renderBanner(); renderRail();
   if (S.view === "topics") renderTopics();
   if (S.view === "chat") renderChat();
@@ -3097,7 +3127,7 @@ function renderTabbar(){
   const tU = S.threads.filter(isUnread).length;
   const isDm = S.view === "chat" && String(S.channel).startsWith("dm-");
   const open = document.body.classList.contains("rail-open");
-  tb.innerHTML = [
+  tb.__h = [
     ["home", I.home, "Main page", tU, S.view === "topics" && !open],
     ["needs", I.box, "Needs", needsOpen().filter(n => n.urgent).length, S.view === "needs" && !open],
     ["chat", I.chat, "Chat", chU, S.view === "chat" && !isDm && !open],
