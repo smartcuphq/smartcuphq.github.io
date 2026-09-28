@@ -14,7 +14,7 @@
   --cream:#F3EFE8; --text:#F3EFE8; --muted:#9C97A6; --dim:#6B6570;
   --line:rgba(243,239,232,.13); --line-2:rgba(243,239,232,.28); --line-3:rgba(243,239,232,.62);
   --amber:#F0A83C; --amber-soft:rgba(240,168,60,.35); --cyan:#22E4FF; --pink:#FF2FB9; --lime:#C6FF3D; --magenta:#C13BD6; --red:#FF4632;
-  --k-question:#22E4FF; --k-idea:#F0A83C; --k-decision:#FF2FB9; --k-note:#C6FF3D;
+  --k-question:#7CCFDD; --k-idea:#F0A83C; --k-decision:#D98CBE; --k-note:#B9D48A;
   --f-body:"Inter","Noto Sans Georgian",system-ui,-apple-system,sans-serif;
   --f-serif:"Fraunces","Noto Sans Georgian",Georgia,serif;
   --f-mono:"JetBrains Mono","Noto Sans Georgian",ui-monospace,Menlo,Consolas,monospace;
@@ -299,7 +299,7 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
 .panel-h h3 span{color:transparent;-webkit-text-stroke:1px var(--cream)}
 .panel-h .tag-m{color:var(--lime)}
 .who-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));margin:0 -1px -1px 0}
-.g-live .panel{--pc:var(--magenta)}
+.g-live .panel{--pc:var(--line-3)}
 .live-list{display:flex;flex-direction:column}
 .lw{display:grid;grid-template-columns:40px 22px minmax(0,1fr);gap:10px;align-items:start;width:100%;padding:10px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer;font-size:13px;line-height:1.45;color:var(--muted)}
 .lw:last-child{border-bottom:0}
@@ -699,13 +699,17 @@ button.opt:disabled{cursor:default}
 .plan-tog .pt-o{color:var(--dim);flex:none}
 .plan-tog.on + .d-plan{margin-top:-6px}
 /* a file opens right on the page, in a frame above the list */
-#drawer.inline{position:relative;top:auto;right:auto;bottom:auto;left:auto;width:auto;z-index:2;transform:none;visibility:visible;transition:none;border:1.5px solid var(--cream);box-shadow:8px 8px 0 var(--kc,var(--amber));margin:0 0 30px;scroll-margin-top:16px;animation:inlineIn .35s cubic-bezier(.22,1,.36,1)}
+#drawer.inline{position:relative;top:auto;right:auto;bottom:auto;left:auto;width:auto;z-index:2;transform:none;visibility:visible;transition:none;border:1px solid var(--cream);box-shadow:none;background:rgba(8,7,12,.9);margin:0 0 30px;scroll-margin-top:16px;animation:inlineIn .35s cubic-bezier(.22,1,.36,1)}
 #drawer.inline:not(.open){display:none}
 #drawer.inline .d-body{overflow:visible;flex:none}
 #drawer.inline .d-foot{position:sticky;bottom:0;z-index:3}
 #drawer.inline .d-head{position:sticky;top:0;z-index:3;background:var(--panel)}
 @keyframes inlineIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
-.card.is-open{outline:2px solid var(--kc,var(--amber));outline-offset:2px}
+.card.is-open{display:none}
+#drawer.inline .d-head{border-bottom:1px solid var(--line-2)}
+#drawer.inline .d-foot{border-top:1px solid var(--line-2);background:rgba(8,7,12,.96)}
+#drawer.inline .d-block{box-shadow:none;border-color:var(--line-2)}
+#drawer.inline .d-no{opacity:.5}
 .d-head{display:flex;align-items:center;gap:8px;padding:10px 12px 10px 18px;border-bottom:1.5px solid var(--cream);flex-wrap:wrap}
 .d-body{flex:1;overflow:auto;padding:24px 24px 28px;overscroll-behavior:contain;position:relative}
 .d-no{position:absolute;right:10px;top:-8px;font:800 120px/1 var(--f-body);letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--kc) 35%,transparent);pointer-events:none}
@@ -1344,6 +1348,8 @@ const CUPS = [
   {id:"pink", c:"#FF2FB9", f:"#07060B", name:"Pink"},
   {id:"flare", c:"#FF4632", f:"#07060B", name:"Flare"},
   {id:"cream", c:"#F3EFE8", f:"#07060B", name:"Cream"},
+  {id:"sand", c:"#D6C2A0", f:"#07060B", name:"Sand"},
+  {id:"steel", c:"#93A8C2", f:"#07060B", name:"Steel"},
 ];
 const DOCK = {
   office:{label:"At the office", short:"AT THE OFFICE", line:"is at the office", cls:"office"},
@@ -1369,8 +1375,8 @@ const DEFAULT_ROSTER = {
   ],
   projects:[
     {id:"p-proto", name:"Prototype #01", color:"amber"},
-    {id:"p-brand", name:"Brand & launch", color:"pink"},
-    {id:"p-money", name:"Funding & legal", color:"cyan"},
+    {id:"p-brand", name:"Brand & launch", color:"sand"},
+    {id:"p-money", name:"Funding & legal", color:"steel"},
   ],
   channels:[
     {id:"general", name:"General", desc:"Anything the whole team should see"},
@@ -3130,6 +3136,8 @@ async function connect(){
     S.db = db;
     db.doc("team/roster").onSnapshot(snap => {
       S.roster = snap.exists ? normalizeRoster(snap.data()) : clone(DEFAULT_ROSTER);
+      /* calmer palette: the two default projects move off pink and cyan */
+      (S.roster.projects || []).forEach(p => { if (p.id === "p-brand" && p.color === "pink") p.color = "sand"; if (p.id === "p-money" && p.color === "cyan") p.color = "steel"; });
       S.loaded.roster = true; computeIdentity();
       if (S.view === "admin" && !S.adminDirty){ S.adminDraft = clone(S.roster); renderAdmin(); }
       schedule();
