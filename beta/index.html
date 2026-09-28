@@ -2019,7 +2019,7 @@ window.addEventListener("pagehide", trFlush);
 
 const ACV = [["topics", "Main page", "var(--amber)"], ["chat", "Chat", "var(--cyan)"], ["needs", "Needs", "var(--pink)"], ["wild", "Prototype", "var(--magenta)"], ["admin", "Settings", "var(--dim)"], ["activity", "Activity", "var(--line-3)"]];
 const ACT = {topic:["put a file on the table", "files"], reply:["replied", "replies"], chat:["wrote in chat", "messages"], need:["pinned a need", "needs"], needmove:["moved a need", "need moves"], step:["ticked a step", "steps"], upload:["uploaded", "uploads"]};
-function hm(ms){ const m = Math.round(ms / 6e4); return m < 60 ? m + "m" : Math.floor(m / 60) + "h " + String(m % 60).padStart(2, "0") + "m"; }
+function hm(ms){ if (ms > 0 && ms < 6e4) return Math.round(ms / 1e3) + "s"; const m = Math.round(ms / 6e4); return m < 60 ? m + "m" : Math.floor(m / 60) + "h " + String(m % 60).padStart(2, "0") + "m"; }
 function dayStr(d){ return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 async function loadActivity(force){
   if (!S.activity || (S.acLoading && !force)) return;

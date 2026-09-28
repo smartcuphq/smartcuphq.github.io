@@ -411,6 +411,45 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
   .nd-col-h{display:none}
   .nd-grid{grid-template-columns:minmax(0,1fr)}
 }
+/* activity: admin only */
+.ac{padding:34px clamp(16px,4vw,48px) 90px}
+.ac .hero h1 span{color:transparent;-webkit-text-stroke:1.3px var(--cream)}
+.ac-lock{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:6px 10px;border:1px solid var(--line-2);font:600 9.5px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ac-lock b{color:var(--lime)}
+.ac-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 18px}
+.ac-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.5px;background:var(--cream);border:1.5px solid var(--cream);margin:0 0 26px}
+.ac-sum div{background:var(--panel);padding:14px 16px 13px;min-width:0}
+.ac-sum b{display:block;font:800 clamp(24px,2.6vw,34px)/1 var(--f-body);letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-sum span{display:block;margin-top:6px;font:600 9.5px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:18px}
+.ac-card{border:1.5px solid var(--cream);background:rgba(8,7,12,.9);box-shadow:6px 6px 0 var(--pc,var(--amber));padding:16px 16px 12px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.ac-card.idle{box-shadow:6px 6px 0 var(--line-2);opacity:.75}
+.ac-h{display:flex;align-items:center;gap:12px;min-width:0}
+.ac-h .who{min-width:0;flex:1}
+.ac-h .who b{display:block;font:800 16px/1.15 var(--f-body);text-transform:uppercase;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac-h .who span{font:600 9.5px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ac-h .tm{text-align:right}
+.ac-h .tm b{display:block;font:800 24px/1 var(--f-body);letter-spacing:-.03em;color:var(--pc,var(--amber))}
+.ac-h .tm span{font:600 9px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ac-split{display:flex;height:10px;background:rgba(243,239,232,.07);overflow:hidden}
+.ac-split i{display:block;height:100%}
+.ac-leg{display:flex;flex-wrap:wrap;gap:6px 12px;font:600 9px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ac-leg span{display:inline-flex;align-items:center;gap:5px}
+.ac-leg i{width:8px;height:8px;display:inline-block}
+.ac-days{display:flex;align-items:flex-end;gap:3px;height:46px;padding-top:4px;border-bottom:1px solid var(--line-2)}
+.ac-days i{flex:1;min-width:3px;background:var(--pc,var(--amber));opacity:.85;min-height:1px}
+.ac-days i.z{background:var(--line-2);opacity:.6}
+.ac-dl{display:flex;justify-content:space-between;font:600 8.5px/1 var(--f-mono);letter-spacing:.08em;color:var(--dim);margin-top:-6px}
+.ac-acts{display:flex;flex-wrap:wrap;gap:6px}
+.ac-acts span{padding:3px 7px;border:1px solid var(--line-2);font:600 9.5px/1.3 var(--f-mono);letter-spacing:.06em;color:var(--muted)}
+.ac-acts b{color:var(--text)}
+.ac-more{align-self:flex-start;background:none;border:0;padding:2px 0;color:var(--amber);font:700 9.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.ac-log{display:flex;flex-direction:column;border-top:1px solid var(--line);max-height:320px;overflow:auto}
+.ac-log div{display:grid;grid-template-columns:86px minmax(0,1fr);gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px;color:#CFC9D6}
+.ac-log .mono{padding-top:1px}
+.ac-log b{color:var(--text);font-weight:600}
+.ac-empty{padding:28px 16px;border:1px dashed var(--line-2);font:400 12px/1.6 var(--f-mono);color:var(--muted)}
+@media (max-width:640px){.ac-sum{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* the parts wall: pegboard, paper tags, shipping labels, stamps */
 .nd-wall{position:relative;padding:18px;border:1.5px solid var(--cream);background:radial-gradient(circle at 12px 12px,rgba(243,239,232,.13) 2.2px,transparent 2.6px) 0 0/24px 24px,linear-gradient(180deg,#0d0b12,#08070c);box-shadow:8px 8px 0 var(--amber)}
 .nd-wall::before{content:"PARTS WALL";position:absolute;right:16px;top:-11px;padding:3px 8px;background:var(--amber);color:var(--void);font:800 9.5px/1 var(--f-mono);letter-spacing:.2em}
@@ -987,6 +1026,7 @@ button.opt:disabled{cursor:default}
     </div>
     <nav class="nav" aria-label="Main">
       <button class="nav-btn" data-view="topics" id="nav-topics"><span class="ic" id="ic-topics"></span><span class="nav-t">Main page</span><span class="badge" id="badge-topics"></span></button>
+      <button class="nav-btn" data-view="activity" id="nav-activity" hidden><span class="ic" id="ic-activity"></span><span class="nav-t">Activity</span><span class="badge mono" style="background:none;color:var(--lime)">ADMIN</span></button>
       <button class="nav-btn" data-view="needs" id="nav-needs"><span class="ic" id="ic-needs"></span><span class="nav-t">Needs</span><span class="badge" id="badge-needs"></span></button>
     </nav>
     <div class="rail-label tag-m" id="rail-projects-h">Projects</div>
@@ -1087,6 +1127,9 @@ button.opt:disabled{cursor:default}
       </div>
     </section>
 
+    <section class="view" id="v-activity" hidden aria-label="Activity">
+      <div class="scroll" id="activity-scroll"><div class="ac"><div class="wrap" id="activity-in"></div></div></div>
+    </section>
     <section class="view" id="v-needs" hidden aria-label="Needs">
       <div class="scroll" id="needs-scroll"><div class="nd"><div class="wrap" id="needs-in"></div></div></div>
     </section>
@@ -1229,6 +1272,7 @@ const I = {
   send:'<svg viewBox="0 0 24 24"><path d="M4.5 12 19.5 4.5l-5.5 15-3-6.5z"/><path d="M11 13l8.5-8.5"/></svg>',
   close:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   box:'<svg viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>',
+  pulse:'<svg viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>',
   clip:'<svg viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.2-8.2a3.3 3.3 0 0 1 4.7 4.7l-8.2 8.2a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/></svg>',
   play:'<svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg>',
   pin:'<svg viewBox="0 0 24 24"><path d="M9 3.5h6l-1 6.5 3 3H7l3-3zM12 13v7.5"/></svg>',
@@ -1619,6 +1663,7 @@ function renderRail(){
   document.title = R.space.name || "Smart Cup";
   $("#nav-topics").setAttribute("aria-current", S.view === "topics");
   $("#nav-needs").setAttribute("aria-current", S.view === "needs");
+  $("#nav-activity").hidden = !S.isOwner; $("#nav-activity").setAttribute("aria-current", S.view === "activity");
   { const no = needsOpen(); $("#badge-needs").textContent = no.length ? no.length : ""; }
   const ut = S.threads.filter(isUnread).length; $("#badge-topics").textContent = ut ? ut : "";
   $("#rail-channels").innerHTML = R.channels.map(c => {
@@ -1939,12 +1984,89 @@ function addFiles(w, files){
     if (isV && file.size > S.media.maxVideo){ toast(`${file.name} is over 30 MB. Trim it or record at 720p.`); continue; }
     const a = {key:rid("u"), name:file.name, kind:isV ? "video" : "image", st:"up", pct:0, ref:null, local:URL.createObjectURL(file)};
     S.att[w].push(a); renderAtt(w);
-    S.media.put(file, p => { a.pct = p; renderAtt(w); }).then(ref => { a.ref = ref; a.st = "ok"; if (ref.kind === "image") MURL.set(ref.id, a.local); renderAtt(w); },
+    S.media.put(file, p => { a.pct = p; renderAtt(w); }).then(ref => { a.ref = ref; a.st = "ok"; track("upload", a.name); if (ref.kind === "image") MURL.set(ref.id, a.local); renderAtt(w); },
       e => { a.st = "err"; renderAtt(w); toast(e && e.message && e.code !== "unavailable" ? e.message : "Upload failed. Check your connection and try again."); });
   }
 }
 function clearAtt(w, keepUrls){ S.att[w].forEach(a => { if (!keepUrls || a.st !== "ok") URL.revokeObjectURL(a.local); }); S.att[w] = []; renderAtt(w); }
 function mediaCount(t){ return (Array.isArray(t.media) ? t.media.length : 0) + repliesFor(t.id).reduce((n, r) => n + (Array.isArray(r.media) ? r.media.length : 0), 0); }
+
+/* ---------- activity: time on each page and what people did, sent once a minute (admin reads it) ---------- */
+const TR = {ms:0, v:{}, a:{}, log:[], lastIn:Date.now(), start:Date.now(), started:false};
+["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(ev => window.addEventListener(ev, () => { TR.lastIn = Date.now(); }, {passive:true, capture:true}));
+function trView(){ const w = document.getElementById("wild"); return w && !w.hidden ? "wild" : S.openId && S.view === "topics" ? "topics" : S.view; }
+setInterval(() => {
+  if (document.visibilityState !== "visible" || !S.mySeat) return;
+  const v = trView(), idle = Date.now() - TR.lastIn;
+  if (idle > (v === "wild" ? 10 : 2) * 60e3) return;
+  TR.ms += 15e3; TR.v[v] = (TR.v[v] || 0) + 15e3;
+}, 15e3);
+function track(k, x){ TR.a[k] = (TR.a[k] || 0) + 1; TR.log.push({at:Date.now(), k, x:String(x || "").slice(0, 80)}); if (TR.log.length > 40) trFlush(); }
+function trFlush(){
+  if (!S.activity || !S.mySeat) return;
+  if (!TR.ms && !TR.log.length && TR.started) return;
+  const s = mySeatObj(), x = {seat:S.mySeat, name:s ? seatName(s) : "", ms:TR.ms, views:TR.v, acts:TR.a, log:TR.log.splice(0)};
+  if (!TR.started){ x.start = TR.start; TR.started = true; }
+  TR.ms = 0; TR.v = {}; TR.a = {};
+  S.activity.bump(x);
+}
+setInterval(trFlush, 60e3);
+if (location.hostname === "localhost") window.__hqTR = {TR, trFlush, track};
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") trFlush(); else { TR.lastIn = Date.now(); } });
+window.addEventListener("pagehide", trFlush);
+
+const ACV = [["topics", "Main page", "var(--amber)"], ["chat", "Chat", "var(--cyan)"], ["needs", "Needs", "var(--pink)"], ["wild", "Prototype", "var(--magenta)"], ["admin", "Settings", "var(--dim)"], ["activity", "Activity", "var(--line-3)"]];
+const ACT = {topic:["put a file on the table", "files"], reply:["replied", "replies"], chat:["wrote in chat", "messages"], need:["pinned a need", "needs"], needmove:["moved a need", "need moves"], step:["ticked a step", "steps"], upload:["uploaded", "uploads"]};
+function hm(ms){ if (ms > 0 && ms < 6e4) return Math.round(ms / 1e3) + "s"; const m = Math.round(ms / 6e4); return m < 60 ? m + "m" : Math.floor(m / 60) + "h " + String(m % 60).padStart(2, "0") + "m"; }
+function dayStr(d){ return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+async function loadActivity(force){
+  if (!S.activity || (S.acLoading && !force)) return;
+  S.acLoading = true;
+  try { S.acDocs = await S.activity.all(); S.acErr = null; } catch (e){ S.acErr = e; }
+  S.acLoading = false; S.acAt = Date.now(); schedule();
+}
+function renderActivity(){
+  const box = $("#activity-in"); if (!box) return;
+  if (!S.isOwner){ box.innerHTML = `<div class="ac-empty">Admin only.</div>`; return; }
+  if (!S.acDocs && !S.acLoading && !S.acErr){ loadActivity(); }
+  const range = S.acRange || 7, days = [];
+  for (let i = range - 1; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); days.push(dayStr(d)); }
+  const docs = (S.acDocs || []).filter(d => days.includes(d.day));
+  const by = new Map();
+  for (const d of docs){ const k = d.seat || d.uid; const e = by.get(k) || {seat:d.seat, name:d.name, ms:0, v:{}, a:{}, log:[], days:{}, last:0, starts:[]}; e.ms += d.ms || 0; for (const x in d.views || {}) e.v[x] = (e.v[x] || 0) + d.views[x]; for (const x in d.acts || {}) e.a[x] = (e.a[x] || 0) + d.acts[x]; e.log.push(...(d.log || [])); e.days[d.day] = (e.days[d.day] || 0) + (d.ms || 0); e.last = Math.max(e.last, d.last || 0); e.starts.push(...(d.starts || [])); if (d.name) e.name = d.name; by.set(k, e); }
+  const people = seats().map(s => ({s, e:by.get(s.id)})).sort((a, b) => ((b.e && b.e.ms) || 0) - ((a.e && a.e.ms) || 0));
+  const total = docs.reduce((n, d) => n + (d.ms || 0), 0), acts = docs.reduce((n, d) => n + Object.values(d.acts || {}).reduce((a, b) => a + b, 0), 0);
+  const top = people[0] && people[0].e && people[0].e.ms ? seatName(people[0].s) : "—";
+  const activeNow = seats().filter(s => S.online.has(s.id)).length;
+  const lbl = range === 1 ? "today" : "last " + range + " days";
+  box.innerHTML = `<div class="hero"><div class="kick"><span>Admin · Team activity</span></div><h1>Who's<br><span>been in</span></h1><p>Time each person was active in HQ (idle time and closed tabs don't count), where they spent it and what they did.</p><div class="ac-lock">🔒 <b>Only you</b> can open this page. The team can't read it.</div></div>
+    <div class="ac-bar"><div class="seg">${[[1, "Today"], [7, "7 days"], [30, "30 days"]].map(([n, l]) => `<button type="button" data-ac-range="${n}" aria-pressed="${range === n}">${l}</button>`).join("")}</div><button type="button" class="btn sm ghost" data-ac-reload>${S.acLoading ? "Loading…" : "Refresh"}</button>${S.acAt ? `<span class="mono">Updated ${clock(S.acAt)}</span>` : ""}</div>
+    ${S.acErr ? `<div class="ac-empty">Couldn't load activity. If you just added the new rule in Firebase, wait a minute and press Refresh.</div>` : ""}
+    <div class="ac-sum"><div><b>${hm(total)}</b><span>Team time · ${lbl}</span></div><div><b>${acts}</b><span>Things done</span></div><div><b>${esc(top)}</b><span>Most active</span></div><div><b>${activeNow}/${seats().length}</b><span>Online now</span></div></div>
+    <div class="ac-grid">${people.map(({s, e}) => {
+      const c = cup(colorOf(s)).c, ms = e ? e.ms : 0;
+      const split = ACV.map(([k, l, col]) => [k, l, col, e ? e.v[k] || 0 : 0]).filter(x => x[3] > 0);
+      const sumV = split.reduce((n, x) => n + x[3], 0) || 1, maxD = Math.max(1, ...days.map(d => (e && e.days[d]) || 0));
+      const nd = e ? days.filter(d => e.days[d]).length : 0;
+      const open = S.acOpen === s.id, log = e ? e.log.slice().sort((a, b) => b.at - a.at) : [];
+      const online = S.online.has(s.id);
+      return `<article class="ac-card${ms ? "" : " idle"}" style="--pc:${c}">
+        <div class="ac-h">${medal(s, 40, {glow:online})}<div class="who"><b>${esc(seatName(s))}</b><span>${online ? `<span style="color:var(--lime)">● Online now</span>` : e && e.last ? "Last seen " + esc(dayLabel(e.last)) + ", " + clock(e.last) : "Not in " + lbl}</span></div><div class="tm"><b>${hm(ms)}</b><span>${range === 1 ? (e ? plural(new Set(e.starts.map(x => Math.floor(x / 6e4))).size, "visit", "visits") : "0 visits") : nd + "/" + range + " days"}</span></div></div>
+        ${split.length ? `<div class="ac-split">${split.map(x => `<i style="width:${(x[3] / sumV * 100).toFixed(1)}%;background:${x[2]}" title="${x[1]}: ${hm(x[3])}"></i>`).join("")}</div><div class="ac-leg">${split.map(x => `<span><i style="background:${x[2]}"></i>${x[1]} ${hm(x[3])}</span>`).join("")}</div>` : ""}
+        ${range > 1 ? `<div class="ac-days" aria-label="Time per day">${days.map(d => { const v = (e && e.days[d]) || 0; return `<i class="${v ? "" : "z"}" style="height:${v ? Math.max(6, v / maxD * 100) : 3}%" title="${d}: ${hm(v)}"></i>`; }).join("")}</div><div class="ac-dl"><span>${fmtDate(days[0])}</span><span>Today</span></div>` : ""}
+        ${e && Object.keys(e.a).length ? `<div class="ac-acts">${Object.entries(ACT).filter(([k]) => e.a[k]).map(([k, [, pl]]) => `<span><b>${e.a[k]}</b> ${pl}</span>`).join("")}</div>` : ""}
+        ${log.length ? `<button type="button" class="ac-more" data-ac-open="${esc(s.id)}">${open ? "Hide what they did" : "What they did · " + log.length}</button>` : ""}
+        ${open ? `<div class="ac-log">${log.slice(0, 120).map(x => `<div><span class="mono">${esc(range === 1 ? clock(x.at) : fmtDate(dayStr(new Date(x.at))) + " " + clock(x.at))}</span><span><b>${esc((ACT[x.k] || [x.k])[0])}</b>${x.x ? " · " + esc(x.x) : ""}</span></div>`).join("")}</div>` : ""}
+      </article>`;
+    }).join("")}</div>`;
+}
+function acClick(q){
+  let el;
+  if ((el = q("[data-ac-range]"))){ S.acRange = +el.dataset.acRange; schedule(); return true; }
+  if ((el = q("[data-ac-reload]"))){ trFlush(); setTimeout(() => loadActivity(true), 400); return true; }
+  if ((el = q("[data-ac-open]"))){ S.acOpen = S.acOpen === el.dataset.acOpen ? null : el.dataset.acOpen; schedule(); return true; }
+  return false;
+}
 
 /* ---------- needs: anyone adds what the build needs; anyone moves it along ---------- */
 const ND = {need:{label:"Need", shelf:"Needed", long:"We need it"}, way:{label:"On the way", shelf:"In transit", long:"Ordered, on the way"}, have:{label:"In hand", shelf:"On the shelf", long:"We have it"}};
@@ -2013,6 +2135,7 @@ function renderNeeds(){
   if (keepF){ const x = document.getElementById(keepF); if (x) x.focus({preventScroll:true}); }
 }
 async function ndWrite(id, patch, create){
+  { const n = S.needs.get(id); track(create ? "need" : "needmove", create ? patch.title : (n ? n.title : "") + (patch.status ? " → " + ND[patch.status].label : "")); }
   try { if (create) await S.db.doc("needs/" + id).set(patch); else await S.db.doc("needs/" + id).update(patch); return true; } catch (e){ writeErr(e); return false; }
 }
 document.addEventListener("submit", async e => {
@@ -2536,6 +2659,7 @@ function writeErr(e){
   else toast("Couldn't save. Try again.");
 }
 async function createThread(data){
+  track("topic", data.title);
   const id = rid("t");
   const no = S.threads.reduce((m, t) => Math.max(m, t.no || 0), 0) + 1;
   const doc = {no, kind:data.kind, title:data.title, body:data.body, media:data.media || [], to:data.to, seat:S.mySeat, by:S.uid || null, at:Date.now(), status:data.kind === "idea" ? "new" : "open", pinned:false, project:data.project || null, owner:data.owner || null, due:data.due || null, steps:[]};
@@ -2570,6 +2694,7 @@ function removeItem(mapName, coll, id, itemId){
   });
 }
 function sendChat(text, media){
+  track("chat", (chanObj(S.channel) || {}).dm ? "a private message" : "#" + ((chanObj(S.channel) || {}).name || S.channel));
   const wk = curWk(); const id = `${S.channel}__w${wk}__${myKey()}`;
   S.stickChat = true;
   const item = {id:rid("m"), at:Date.now(), seat:S.mySeat, text};
@@ -2577,6 +2702,7 @@ function sendChat(text, media){
   return appendItem("chatDocs", "chat", id, {ch:S.channel, wk, by:S.uid || null}, item);
 }
 function sendReply(tid, text, media){
+  { const t = S.threads.find(x => x.id === tid); track("reply", t ? (t.no ? "File " + topicNo(t) + " · " : "") + t.title : ""); }
   const id = `${tid}__${myKey()}`;
   S.stickDrawer = true;
   const item = {id:rid("r"), at:Date.now(), seat:S.mySeat, text};
@@ -2677,14 +2803,15 @@ function closeModal(){ $("#modal").hidden = true; }
 
 /* ---------- navigation ---------- */
 function go(view){
-  if (view === "admin" && !S.isOwner) view = "topics";
+  if ((view === "admin" || view === "activity") && !S.isOwner) view = "topics";
   if (view === "admin" && S.view !== "admin"){ S.adminDraft = clone(S.roster); S.adminDirty = false; }
   S.view = view;
-  $("#v-topics").hidden = view !== "topics"; $("#v-chat").hidden = view !== "chat"; $("#v-admin").hidden = view !== "admin"; $("#v-needs").hidden = view !== "needs";
-  $("#mbar-title").textContent = view === "chat" ? ((o => o ? (o.dm ? o.name : "# " + o.name) : "Chat")(chanObj(S.channel))) : view === "admin" ? "Team settings" : view === "needs" ? "Needs" : "Main page";
+  $("#v-topics").hidden = view !== "topics"; $("#v-chat").hidden = view !== "chat"; $("#v-admin").hidden = view !== "admin"; $("#v-needs").hidden = view !== "needs"; $("#v-activity").hidden = view !== "activity";
+  $("#mbar-title").textContent = view === "chat" ? ((o => o ? (o.dm ? o.name : "# " + o.name) : "Chat")(chanObj(S.channel))) : view === "admin" ? "Team settings" : view === "needs" ? "Needs" : view === "activity" ? "Activity" : "Main page";
   document.body.classList.remove("rail-open");
   if (view === "chat"){ S.stickChat = true; }
   if (view === "admin") renderAdmin();
+  if (view === "activity"){ trFlush(); setTimeout(() => loadActivity(true), 400); }
   setPresence({view, typing:null});
   schedule();
   if (view === "chat" && window.matchMedia("(min-width: 861px)").matches) setTimeout(() => { const c = $("#chat-input"); if (!c.disabled) c.focus({preventScroll:true}); }, 30);
@@ -2699,6 +2826,7 @@ function renderAll(){
   if (S.view === "topics") renderTopics();
   if (S.view === "chat") renderChat();
   if (S.view === "needs") renderNeeds();
+  if (S.view === "activity") renderActivity();
   if (S.openId) renderDrawer();
   renderOnboard();
   renderCoach();
@@ -2749,6 +2877,7 @@ document.addEventListener("click", e => {
   if ((el = q("[data-close-me]"))){ closeMe(); return; }
   if ((el = q("[data-dock]"))){ const mine = myDock(); if (!(mine && mine.state === el.dataset.dock)) dock(el.dataset.dock); return; }
   if (ndClick(q)) return;
+  if (acClick(q)) return;
   if ((el = q("[data-cu]"))){
     const k = el.dataset.cu;
     if (k === "show"){ S.onlyNew = true; S.catchupDone = true; schedule(); setTimeout(() => $("#board")?.scrollIntoView({behavior:"smooth", block:"start"}), 60); }
@@ -2760,6 +2889,7 @@ document.addEventListener("click", e => {
   if ((el = q("[data-backup]"))){ backup(el); return; }
   if ((el = q("[data-media]"))){ if (S.media) openLightbox(el.dataset.media, el.dataset.mkind); return; }
   if ((el = q("[data-att-rm]"))){ const [w, key] = el.dataset.attRm.split("|"); const a = S.att[w].find(x => x.key === key); if (a){ URL.revokeObjectURL(a.local); if (a.ref && S.media) S.media.del(a.ref.id); S.att[w] = S.att[w].filter(x => x !== a); renderAtt(w); } return; }
+  if ((el = q("[data-un-step]"))){ track("step", ""); }
   if ((el = q("[data-un-step]"))){ const [tid, sid] = el.dataset.unStep.split("|"); const th = S.threads.find(x => x.id === tid); if (th && canPost()) updateThread(th.id, {steps:stepsOf(th).map(x => x.id === sid ? {...x, done:!x.done, doneAt:Date.now()} : x)}); return; }
   if ((el = q("[data-un-scope]"))){ S.unScope = el.dataset.unScope; LS.set("unScope", S.unScope); S.unAll = false; schedule(); return; }
   if ((el = q("[data-un-more]"))){ S.unAll = !S.unAll; schedule(); return; }
@@ -2786,6 +2916,7 @@ document.addEventListener("click", e => {
     $(".g-table").scrollIntoView({behavior:smooth, block:"start"});
     return;
   }
+  if ((el = q("[data-step-toggle]"))){ track("step", ""); }
   if ((el = q("[data-step-toggle]"))){ const sid = el.closest("[data-step]").dataset.step; const th = S.threads.find(x => x.id === S.openId); if (th && canPost()) updateThread(th.id, {steps:stepsOf(th).map(x => x.id === sid ? {...x, done:!x.done, doneAt:Date.now()} : x)}); return; }
   if ((el = q("[data-step-del]"))){ armThen(el, () => { const sid = el.closest("[data-step]").dataset.step; const th = S.threads.find(x => x.id === S.openId); if (th) updateThread(th.id, {steps:stepsOf(th).filter(x => x.id !== sid)}); }); return; }
   if ((el = q("[data-del-msg]"))){ armThen(el, () => { const [doc, item] = el.dataset.delMsg.split("|"); removeItem("chatDocs", "chat", doc, item); }); return; }
@@ -2908,6 +3039,7 @@ document.addEventListener("focusin", e => { if (isField(e.target)) document.body
 document.addEventListener("focusout", () => setTimeout(() => { if (!isField(document.activeElement)) document.body.classList.remove("kb"); }, 60));
 $("#ic-topics").innerHTML = I.topics;
 $("#ic-needs").innerHTML = I.box;
+$("#ic-activity").innerHTML = I.pulse;
 $("#nt-x").innerHTML = I.close;
 $("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
 $("#nt-kinds").addEventListener("change", e => { if (e.target.name === "nt-kind"){ S.newKind = e.target.value; syncNewKind(); } });
@@ -2950,6 +3082,7 @@ async function connect(){
   const use = n => (window.claude && typeof window.claude.use === "function") ? window.claude.use(n).catch(() => null) : Promise.resolve(null);
   const [db, user, room, media] = await Promise.all([use("db"), use("user"), use("room"), use("media")]);
   S.media = media || null;
+  S.activity = (await use("activity")) || null;
   if (user){
     S.user = user;
     try {
@@ -3001,6 +3134,6 @@ derive(); renderAll();
 connect();
 })();
 </script>
-<script src="hq-wild.js?v=2" defer></script>
+<script src="hq-wild.js?v=3" defer></script>
 
 </body></html>
