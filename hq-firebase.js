@@ -145,7 +145,7 @@ function mkActivity(uid){
   return {
     bump(x){
       const inc = o => { const r = {}; for (const k in o) if (o[k]) r[k] = increment(o[k]); return r; };
-      const d = {uid, day:day(), seat:x.seat || null, name:x.name || "", last:Date.now()};
+      const d = {uid, day:day(), seat:x.seat || null, name:x.name || "", v:x.v || 0, last:Date.now()};
       if (x.ms) d.ms = increment(x.ms);
       if (x.views && Object.keys(x.views).length) d.views = inc(x.views);
       if (x.acts && Object.keys(x.acts).length) d.acts = inc(x.acts);

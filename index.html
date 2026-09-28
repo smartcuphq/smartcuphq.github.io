@@ -2147,6 +2147,8 @@ function addFiles(w, files){
 function clearAtt(w, keepUrls){ S.att[w].forEach(a => { if (!keepUrls || a.st !== "ok") URL.revokeObjectURL(a.local); }); S.att[w] = []; renderAtt(w); }
 function mediaCount(t){ return (Array.isArray(t.media) ? t.media.length : 0) + repliesFor(t.id).reduce((n, r) => n + (Array.isArray(r.media) ? r.media.length : 0), 0); }
 
+/* the app version each person runs, so the admin can see who is still on an old copy */
+const APPV = 16;
 /* ---------- activity: time on each page and what people did, sent once a minute (admin reads it) ---------- */
 const TR = {ms:0, v:{}, a:{}, log:[], lastIn:Date.now(), start:Date.now(), started:false};
 ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(ev => window.addEventListener(ev, () => { TR.lastIn = Date.now(); }, {passive:true, capture:true}));
@@ -2161,7 +2163,7 @@ function track(k, x){ TR.a[k] = (TR.a[k] || 0) + 1; TR.log.push({at:Date.now(), 
 function trFlush(){
   if (!S.activity || !S.mySeat) return;
   if (!TR.ms && !TR.log.length && TR.started) return;
-  const s = mySeatObj(), x = {seat:S.mySeat, name:s ? seatName(s) : "", ms:TR.ms, views:TR.v, acts:TR.a, log:TR.log.splice(0)};
+  const s = mySeatObj(), x = {seat:S.mySeat, name:s ? seatName(s) : "", v:APPV, ms:TR.ms, views:TR.v, acts:TR.a, log:TR.log.splice(0)};
   if (!TR.started){ x.start = TR.start; TR.started = true; }
   TR.ms = 0; TR.v = {}; TR.a = {};
   S.trSent = Date.now();
@@ -2213,8 +2215,10 @@ function renderActivity(){
       const nd = e ? days.filter(d => e.days[d]).length : 0;
       const open = S.acOpen === s.id, log = e ? e.log.slice().sort((a, b) => b.at - a.at) : [];
       const online = S.online.has(s.id);
+      const peer = S.peers.find(pp => pp.presence && pp.presence.seat === s.id && !pp.isMe), pv = peer ? peer.presence.v || 0 : null;
+      const oldApp = online && s.id !== S.mySeat && pv !== null && pv < APPV;
       return `<article class="ac-card${ms ? "" : " idle"}" style="--pc:${c}">
-        <div class="ac-h">${medal(s, 40, {glow:online})}<div class="who"><b>${esc(seatName(s))}</b><span>${online ? `<span style="color:var(--lime)">● Online now</span>` : e && e.last ? "Last seen " + esc(dayLabel(e.last)) + ", " + clock(e.last) : "Not in " + lbl}</span></div><div class="tm"><b>${hm(ms)}</b><span>${range === 1 ? (e ? plural(new Set(e.starts.map(x => Math.floor(x / 6e4))).size, "visit", "visits") : "0 visits") : nd + "/" + range + " days"}</span></div></div>
+        <div class="ac-h">${medal(s, 40, {glow:online})}<div class="who"><b>${esc(seatName(s))}</b><span>${oldApp ? `<span style="color:var(--amber)">● Online on an old app version, time isn't counted. Ask them to close and reopen HQ.</span>` : online ? `<span style="color:var(--lime)">● Online now</span>` : e && e.last ? "Last seen " + esc(dayLabel(e.last)) + ", " + clock(e.last) : "Not in " + lbl}</span></div><div class="tm"><b>${hm(ms)}</b><span>${range === 1 ? (e ? plural(new Set(e.starts.map(x => Math.floor(x / 6e4))).size, "visit", "visits") : "0 visits") : nd + "/" + range + " days"}</span></div></div>
         ${split.length ? `<div class="ac-split">${split.map(x => `<i style="width:${(x[3] / sumV * 100).toFixed(1)}%;background:${x[2]}" title="${x[1]}: ${hm(x[3])}"></i>`).join("")}</div><div class="ac-leg">${split.map(x => `<span><i style="background:${x[2]}"></i>${x[1]} ${hm(x[3])}</span>`).join("")}</div>` : ""}
         ${range > 1 ? `<div class="ac-days" aria-label="Time per day">${days.map(d => { const v = (e && e.days[d]) || 0; return `<i class="${v ? "" : "z"}" style="height:${v ? Math.max(6, v / maxD * 100) : 3}%" title="${d}: ${hm(v)}"></i>`; }).join("")}</div><div class="ac-dl"><span>${fmtDate(days[0])}</span><span>Today</span></div>` : ""}
         ${e && Object.keys(e.a).length ? `<div class="ac-acts">${Object.entries(ACT).filter(([k]) => e.a[k]).map(([k, [, pl]]) => `<span><b>${e.a[k]}</b> ${pl}</span>`).join("")}</div>` : ""}
@@ -3418,7 +3422,7 @@ async function connect(){
   if (room){
     S.room = room;
     room.onPeers(ch => { S.peers = ch.peers.slice(); schedule(); }, () => {});
-    setPresence({seat:S.mySeat || null, view:S.view});
+    setPresence({seat:S.mySeat || null, view:S.view, v:APPV});
   }
   schedule();
 }
