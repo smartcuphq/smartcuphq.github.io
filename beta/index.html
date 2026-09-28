@@ -689,6 +689,14 @@ button.opt:disabled{cursor:default}
 #scrim.on{opacity:1;pointer-events:auto}
 #drawer{position:fixed;top:0;right:0;bottom:0;width:min(660px,100%);background:var(--panel);border-left:1.5px solid var(--cream);display:flex;flex-direction:column;z-index:30;transform:translateX(100%);visibility:hidden;transition:transform .45s cubic-bezier(.77,0,.18,1),visibility 0s linear .45s;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 #drawer.open{transform:none;visibility:visible;transition:transform .45s cubic-bezier(.77,0,.18,1)}
+/* a file opens right on the page, in a frame above the list */
+#drawer.inline{position:relative;top:auto;right:auto;bottom:auto;left:auto;width:auto;z-index:2;transform:none;visibility:visible;transition:none;border:1.5px solid var(--cream);box-shadow:8px 8px 0 var(--kc,var(--amber));margin:0 0 30px;scroll-margin-top:16px;animation:inlineIn .35s cubic-bezier(.22,1,.36,1)}
+#drawer.inline:not(.open){display:none}
+#drawer.inline .d-body{overflow:visible;flex:none}
+#drawer.inline .d-foot{position:sticky;bottom:0;z-index:3}
+#drawer.inline .d-head{position:sticky;top:0;z-index:3;background:var(--panel)}
+@keyframes inlineIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.card.is-open{outline:2px solid var(--kc,var(--amber));outline-offset:2px}
 .d-head{display:flex;align-items:center;gap:8px;padding:10px 12px 10px 18px;border-bottom:1.5px solid var(--cream);flex-wrap:wrap}
 .d-body{flex:1;overflow:auto;padding:24px 24px 28px;overscroll-behavior:contain;position:relative}
 .d-no{position:absolute;right:10px;top:-8px;font:800 120px/1 var(--f-body);letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--kc) 35%,transparent);pointer-events:none}
@@ -1743,7 +1751,7 @@ function cardHTML(t){
   if (ow) tm += `<span class="owner">${medal(ow, 18)}${esc(seatName(ow))}</span>`;
   if (tm) special = `<div class="tmeta">${tm}</div>` + special;
   if (pr) special += `<div class="prog"><div class="prog-bar"><i style="width:${Math.round(100 * pr.done / pr.all)}%"></i></div><span class="mono">${pr.done}/${pr.all} steps</span></div>`;
-  return `<article class="card k-${k}${wide ? " wide" : ""}${t.pinned ? " pinned" : ""}" tabindex="0" data-open="${esc(t.id)}" style="--kc:var(--k-${k})" aria-label="${esc(KINDS[k].label + ": " + t.title)}">
+  return `<article class="card k-${k}${wide ? " wide" : ""}${t.pinned ? " pinned" : ""}${S.openId === t.id ? " is-open" : ""}" tabindex="0" data-open="${esc(t.id)}" style="--kc:var(--k-${k})" aria-label="${esc(KINDS[k].label + ": " + t.title)}">
     ${t.no ? `<span class="no" aria-hidden="true">${pad2(t.no)}</span>` : ""}
     <div class="card-band">${kbadge(k, true)}<span class="tag-m kind-label">${t.no ? "File " + topicNo(t) + " · " : ""}${KINDS[k].label}</span>${statusPill(t)}<span class="spacer"></span>${t.pinned ? `<span class="pin-i" title="Pinned">${I.pin}</span>` : ""}${isUnread(t) ? '<span class="unread" title="New activity"></span>' : ""}<span class="mono">${ago(lastAct(t).at)}</span></div>
     <h3>${esc(t.title)}</h3>
@@ -2460,10 +2468,13 @@ function renderDrawer(){
 function openThread(id){
   if (S.openId !== id){ const di = $("#d-input"); di.value = ""; clearAtt("d"); di.dispatchEvent(new Event("input")); }
   S.openId = id; S.stickDrawer = false;
-  const d = $("#drawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false");
-  $("#scrim").classList.add("on");
+  const d = $("#drawer"), board = $("#board");
+  if (S.view !== "topics") go("topics");
+  if (board && d.parentNode !== board.parentNode) board.parentNode.insertBefore(d, board);
+  d.classList.add("inline", "open"); d.setAttribute("aria-hidden", "false");
   $("#d-body").scrollTop = 0;
   renderDrawer(); schedule();
+  requestAnimationFrame(() => d.scrollIntoView({behavior:"smooth", block:"start"}));
   setPresence({view:"t:" + id});
   setTimeout(() => { if (window.matchMedia("(min-width: 861px)").matches && !$("#d-input").disabled) $("#d-input").focus({preventScroll:true}); else $("#d-head .icon-btn")?.focus({preventScroll:true}); }, 60);
 }
@@ -2473,7 +2484,7 @@ function closeDrawer(){
   const d = $("#drawer"); d.classList.remove("open"); d.setAttribute("aria-hidden", "true");
   $("#scrim").classList.remove("on");
   setPresence({view:S.view});
-  if (last){ const c = document.querySelector(`[data-open="${CSS.escape(last)}"]`); c?.focus({preventScroll:true}); }
+  if (last){ const c = document.querySelector(`#board [data-open="${CSS.escape(last)}"]`) || document.querySelector(`[data-open="${CSS.escape(last)}"]`); if (c){ c.focus({preventScroll:true}); c.scrollIntoView({block:"center"}); } }
   schedule();
 }
 
