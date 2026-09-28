@@ -151,7 +151,7 @@ function mkActivity(uid){
       if (x.acts && Object.keys(x.acts).length) d.acts = inc(x.acts);
       if (x.log && x.log.length) d.log = arrayUnion(...x.log);
       if (x.start) d.starts = arrayUnion(x.start);
-      return setDoc(doc(fs, "activity", uid + "_" + d.day), d, {merge:true}).catch(() => {});
+      return setDoc(doc(fs, "activity", uid + "_" + d.day), d, {merge:true}).catch(fail);
     },
     all(){
       return new Promise((res, rej) => { let u = null, done = false; u = onSnapshot(collection(fs, "activity"), s => { if (done) return; done = true; res(s.docs.map(x => x.data())); setTimeout(() => u && u(), 0); }, e => rej(mapErr(e))); });
