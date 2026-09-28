@@ -703,37 +703,23 @@ button.opt:disabled{cursor:default}
 .opt{background:#0E0C14}
 .opt-bar{background:color-mix(in srgb,var(--k-decision) 16%,transparent)}
 .opt.mine{border-color:color-mix(in srgb,var(--k-decision) 70%,transparent);box-shadow:none}
-/* posts: a clean feed - who, what, the title, the text, and a quiet footer */
-.board:not(.list){gap:0!important;border-top:1px solid rgba(243,239,232,.08)}
-.card.post{flex-direction:row;gap:14px;padding:18px 18px 16px 20px;border:0;border-bottom:1px solid rgba(243,239,232,.08);background:#08070C;overflow:visible}
-.card.post::before{content:"";position:absolute;left:0;top:20px;bottom:18px;width:3px;background:var(--kc);opacity:.6}
-.card.post:hover,.card.post:focus-visible{background:#0D0B12;border-color:rgba(243,239,232,.08);outline:none}
-.card.post.pinned{background:#100D0B}
-.p-av{flex:none;padding-top:1px}
-.p-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
-.p-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13.5px;line-height:1.3;color:var(--muted)}
-.p-meta b{color:var(--text);font-weight:700}
-.p-verb{color:var(--kc)}
-.p-dot{color:var(--dim)}
-.p-pin,.p-new{margin-left:4px;font:700 10px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px}
-.p-pin{background:rgba(243,239,232,.09);color:var(--cream)}
-.p-new{background:var(--amber);color:var(--void)}
-.card.post h3,.board:not(.list) .card.post h3{margin:2px 0 0;font:700 19px/1.3 var(--f-body);letter-spacing:-.01em;text-transform:none}
-.card.post .excerpt{color:#BDB7C6;font-size:15px;line-height:1.55;-webkit-line-clamp:3}
-.p-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:3px;font-size:13px;color:var(--muted)}
-.p-foot .pf{display:inline-flex;align-items:center;gap:6px}
-.p-foot svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.p-foot .stack{margin-left:4px}
-.p-foot .p-last{color:var(--dim);margin-left:auto}
-.card.post .pill{border:0;padding:0;background:none;font:600 12px/1.3 var(--f-body);letter-spacing:0;text-transform:none;transform:none}
-.card.post .pill.wait{color:var(--amber)} .card.post .pill.ok{color:var(--lime)} .card.post .pill.done{color:var(--k-decision)}
-.card.post .pill::before{content:"●";margin-right:6px;font-size:9px;vertical-align:1px}
-.card.post .tmeta{margin-top:2px}
-.card.post .opts{margin-top:4px}
-.board.list .card.post{padding:12px 16px 12px 18px}
-.board.list .card.post .excerpt,.board.list .card.post .opts,.board.list .card.post .to{display:none}
-.board.list .card.post .p-av .medal{--s:30px!important}
-@media (max-width:640px){.card.post{padding:16px 12px 14px 16px;gap:11px}.p-av .medal{--s:32px!important}.card.post h3{font-size:17.5px}.p-foot .p-last{display:none}}
+/* a post's photo, big on its card like a social post */
+.card-media{position:relative;margin:2px -18px 4px;max-height:560px;background:#050407 center/cover no-repeat;overflow:hidden;border-top:1px solid rgba(243,239,232,.08);border-bottom:1px solid rgba(243,239,232,.08)}
+.card-media img{display:block;width:100%;height:100%;max-height:560px;object-fit:contain;background:#050407}
+.card-media.loading::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(243,239,232,.06) 50%,transparent 70%);animation:mtShim 1.2s linear infinite}
+.card-media .play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;display:grid;place-items:center;background:rgba(4,3,8,.7);border:2px solid var(--cream);color:var(--cream)}
+.card-media .play svg{width:24px;height:24px;fill:currentColor;stroke:none;margin-left:4px}
+.card-media .more{position:absolute;right:12px;bottom:12px;padding:5px 10px;background:rgba(4,3,8,.8);border:1px solid var(--line-3);font:700 12px/1 var(--f-mono);color:var(--cream)}
+.card-band + .card-media{margin-top:-8px}
+.board.list .card-media{display:none}
+/* editing a post, and the comments section */
+.ed-form{display:flex;flex-direction:column;gap:4px;margin:0 0 18px;padding:14px;border:1px solid var(--amber);background:rgba(240,168,60,.05)}
+.ed-form input,.ed-form textarea{font-size:16px}
+.ed-form #ed-title{font:700 20px/1.3 var(--f-body)}
+.ed-row{display:flex;justify-content:flex-end;gap:8px}
+.d-edited{margin:-10px 0 16px;color:var(--dim);font-size:10px}
+.r-sep{color:var(--text)!important;font-size:11px!important}
+.r-empty{margin:-6px 0 8px;color:var(--muted);font-size:13.5px}
 /* the plan block stays folded until you need it */
 .plan-tog{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 14px;padding:9px 12px;border:1px dashed var(--line-2);background:transparent;color:var(--muted);font:600 10px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-align:left}
 .plan-tog:hover,.plan-tog.on{border-color:var(--amber);color:var(--text)}
@@ -1217,7 +1203,7 @@ button.opt:disabled{cursor:default}
     <div class="att-tray" id="d-att"></div>
     <div class="composer has-att">
       <label class="att-btn" title="Add photos or videos"><input type="file" id="d-file" accept="image/*,video/*" multiple aria-label="Add photos or videos"><span id="d-clip"></span></label>
-      <textarea id="d-input" rows="1" placeholder="Reply… (type @ to mention someone)" aria-label="Reply"></textarea>
+      <textarea id="d-input" rows="1" placeholder="Write a comment… (type @ to mention someone)" aria-label="Write a comment"></textarea>
       <button class="send" id="d-send" aria-label="Send reply" disabled></button>
     </div>
   </div>
@@ -1340,6 +1326,7 @@ const I = {
   topics:'<svg viewBox="0 0 24 24"><path d="M4 4.5h7v7H4zM13 4.5h7v4h-7zM13 10.5h7v9h-7zM4 13.5h7v6H4z"/></svg>',
   send:'<svg viewBox="0 0 24 24"><path d="M4.5 12 19.5 4.5l-5.5 15-3-6.5z"/><path d="M11 13l8.5-8.5"/></svg>',
   close:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
   box:'<svg viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>',
   pulse:'<svg viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>',
   clip:'<svg viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.2-8.2a3.3 3.3 0 0 1 4.7 4.7l-8.2 8.2a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/></svg>',
@@ -1796,6 +1783,14 @@ function reactMini(target){
   const parts = REACTS.filter(([k]) => m[k] && m[k].seats.length).map(([k, g]) => `<span>${g}<span class="mono">${m[k].seats.length}</span></span>`);
   return parts.length ? `<span class="reacts-mini">${parts.join("")}</span>` : "";
 }
+function cardMedia(t){
+  const list = Array.isArray(t.media) ? t.media.filter(m => m && m.id) : [];
+  if (!list.length) return "";
+  const m = list.find(x => x.kind === "image") || list[0];
+  const src = m.kind === "image" ? MURL.get(m.id) : m.poster;
+  const ar = m.w && m.h ? `aspect-ratio:${m.w}/${m.h}` : "aspect-ratio:16/10";
+  return `<div class="card-media${src ? "" : " loading"}" style="${ar}">${src ? `<img alt="" src="${esc(src)}">` : m.kind === "image" ? `<img alt="" data-mimg="${esc(m.id)}">` : ""}${m.kind === "video" ? `<span class="play">${I.play}</span>` : ""}${list.length > 1 ? `<span class="more">+${list.length - 1}</span>` : ""}</div>`;
+}
 function cardHTML(t){
   const k = KINDS[t.kind] ? t.kind : "note";
   const seat = seatById(t.seat);
@@ -1812,17 +1807,14 @@ function cardHTML(t){
   if (ow) tm += `<span class="owner">${medal(ow, 18)}${esc(seatName(ow))}</span>`;
   if (tm) special = `<div class="tmeta">${tm}</div>` + special;
   if (pr) special += `<div class="prog"><div class="prog-bar"><i style="width:${Math.round(100 * pr.done / pr.all)}%"></i></div><span class="mono">${pr.done}/${pr.all} steps</span></div>`;
-  const verb = {question:"asks", idea:"has an idea", decision:"calls a vote", note:"posted a note"}[k];
-  const mc = mediaCount(t);
-  return `<article class="card post k-${k}${t.pinned ? " pinned" : ""}${S.openId === t.id ? " is-open" : ""}" tabindex="0" data-open="${esc(t.id)}" style="--kc:var(--k-${k})" aria-label="${esc(KINDS[k].label + ": " + t.title)}">
-    <div class="p-av">${medal(seat, 38)}</div>
-    <div class="p-main">
-      <div class="p-meta"><b>${esc(seatName(seat))}</b><span class="p-verb">${verb}</span><span class="p-dot">·</span><span>${ago(t.at)}</span>${t.pinned ? `<span class="p-pin">Pinned</span>` : ""}${isUnread(t) ? `<span class="p-new">New</span>` : ""}</div>
-      <h3>${esc(t.title)}</h3>
-      ${t.body ? `<p class="excerpt">${esc(t.body)}</p>` : ""}
-      ${special}
-      <div class="p-foot">${statusPill(t)}<span class="pf">${I.reply}${reps.length ? plural(reps.length, "reply", "replies") : "Reply"}${repliers.length ? `<span class="stack">${repliers.map(s => medal(s, 18)).join("")}</span>` : ""}</span>${mc ? `<span class="pf">${I.clip}${mc}</span>` : ""}${reactMini(t.id)}${reps.length ? `<span class="pf p-last">Last ${ago(lastAct(t).at)}</span>` : ""}</div>
-    </div>
+  return `<article class="card k-${k}${wide ? " wide" : ""}${t.pinned ? " pinned" : ""}${S.openId === t.id ? " is-open" : ""}" tabindex="0" data-open="${esc(t.id)}" style="--kc:var(--k-${k})" aria-label="${esc(KINDS[k].label + ": " + t.title)}">
+    ${t.no ? `<span class="no" aria-hidden="true">${pad2(t.no)}</span>` : ""}
+    <div class="card-band">${kbadge(k, true)}<span class="tag-m kind-label">${t.no ? "File " + topicNo(t) + " · " : ""}${KINDS[k].label}</span>${statusPill(t)}<span class="spacer"></span>${t.pinned ? `<span class="pin-i" title="Pinned">${I.pin}</span>` : ""}${isUnread(t) ? '<span class="unread" title="New activity"></span>' : ""}<span class="mono">${ago(lastAct(t).at)}</span></div>
+    ${cardMedia(t)}
+    <h3>${esc(t.title)}</h3>
+    ${t.body ? `<p class="excerpt">${esc(t.body)}</p>` : ""}
+    ${special}
+    <div class="card-foot">${medal(seat, 24)}<span><b>${esc(seatName(seat))}</b></span><span class="spacer"></span>${mediaCount(t) ? `<span class="replies" title="Photos and videos"><span class="ic">${I.clip}</span><span class="mono">${mediaCount(t)}</span></span>` : ""}${reactMini(t.id)}<span class="replies" title="${esc(plural(reps.length, "comment", "comments"))}"><span class="ic">${I.reply}</span><span class="mono">${reps.length}</span>${repliers.length ? `<span class="stack">${repliers.map(s => medal(s, 20)).join("")}</span>` : ""}</span></div>
   </article>`;
 }
 const projOf = id => (S.roster.projects || []).find(p => p.id === id) || null;
@@ -2027,7 +2019,7 @@ function hydrateMedia(root){
   if (!S.media || !root) return;
   root.querySelectorAll("img[data-mimg]").forEach(img => {
     const id = img.dataset.mimg; img.removeAttribute("data-mimg");
-    S.media.url(id).then(u => { MURL.set(id, u); img.src = u; img.closest(".mt")?.classList.remove("loading"); }, () => { img.closest(".mt")?.classList.remove("loading"); });
+    S.media.url(id).then(u => { MURL.set(id, u); img.src = u; img.closest(".mt, .card-media")?.classList.remove("loading"); }, () => { img.closest(".mt, .card-media")?.classList.remove("loading"); });
   });
 }
 function openLightbox(id, kind){
@@ -2399,7 +2391,7 @@ function renderTopics(){
     const dr = $("#drawer"), ae = document.activeElement, keep = ae && dr.contains(ae) ? {el:ae, s:ae.selectionStart, e:ae.selectionEnd} : null;
     if (dr.parentNode === board) board.parentNode.insertBefore(dr, board);
     board.innerHTML = bh; S.boardHTML = bh;
-    placeDrawer();
+    placeDrawer(); hydrateMedia(board);
     if (keep && keep.el.isConnected){ keep.el.focus({preventScroll:true}); try { if (keep.s != null) keep.el.setSelectionRange(keep.s, keep.e); } catch (x){} }
   } else placeDrawer();
 }
@@ -2472,6 +2464,7 @@ function renderDrawer(){
   $("#drawer").style.setProperty("--kc", `var(--k-${k})`);
   $("#d-head").innerHTML = `${kbadge(k, true)}<span class="tag-m" style="color:var(--k-${k})">${KINDS[k].label}${t.no ? " " + topicNo(t) : ""}</span>${statusPill(t)}<span class="spacer"></span>
     ${S.isOwner ? `<button class="btn ghost sm" data-act="pin">${I.pin}${t.pinned ? "Unpin" : "Pin"}</button>` : ""}
+    ${canMod && S.db && S.editId !== t.id ? `<button class="btn ghost sm" data-act="edit">${I.edit}Edit</button>` : ""}
     ${canMod && S.db ? `<button class="btn ghost sm" data-act="del-thread">${I.trash}Delete</button>` : ""}
     <button class="icon-btn" data-act="close-drawer" aria-label="Close">${I.close}</button>`;
   let block = "";
@@ -2524,14 +2517,15 @@ function renderDrawer(){
   </div>`;
   const body = $("#d-body");
   const ae = document.activeElement, keepF = ae && body.contains(ae) && ae.id ? {id:ae.id, s:ae.selectionStart, e:ae.selectionEnd} : null;
-  const keepV = {}; ["step-text", "step-seat", "step-due"].forEach(id => { const x = document.getElementById(id); if (x) keepV[id] = x.value; });
+  const keepV = {}; ["step-text", "step-seat", "step-due", "ed-title", "ed-body"].forEach(id => { const x = document.getElementById(id); if (x) keepV[id] = x.value; });
   const keep = body.scrollTop, atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
-  body.innerHTML = `${t.no ? `<span class="d-no" aria-hidden="true">${pad2(t.no)}</span>` : ""}<h2 class="d-title">${esc(t.title)}</h2>
+  const editing = S.editId === t.id && canMod;
+  body.innerHTML = `${t.no ? `<span class="d-no" aria-hidden="true">${pad2(t.no)}</span>` : ""}${editing ? `<form class="ed-form" id="ed-form" autocomplete="off"><label class="fld"><span>Title</span><input id="ed-title" maxlength="140" required value="${esc(t.title)}"></label><label class="fld"><span>Text</span><textarea id="ed-body" rows="7" maxlength="4000">${esc(t.body || "")}</textarea></label><div class="ed-row"><button type="button" class="btn ghost sm" data-act="edit-cancel">Cancel</button><button type="submit" class="btn primary sm">Save changes</button></div></form>` : `<h2 class="d-title">${esc(t.title)}</h2>`}
     <div class="d-meta">${medal(author, 38)}<div class="who"><b>${esc(seatName(author))}</b><span>${esc(seatSub(author) || "")}${seatSub(author) ? " · " : ""}${dayLabel(t.at)}, ${clock(t.at)}</span></div>
     ${(t.to || []).length ? `<span class="spacer"></span><div class="to"><span class="tag-m">${k === "question" ? "Asking" : "For"}</span>${t.to.map(chipSeat).join("")}</div>` : ""}</div>
-    ${t.body ? `<div class="d-text">${rich(t.body)}</div>` : ""}${mediaHTML(t.media)}
+    ${!editing && t.body ? `<div class="d-text">${rich(t.body)}</div>` : ""}${t.editedAt && !editing ? `<div class="d-edited mono">Edited ${esc(dayLabel(t.editedAt))}, ${clock(t.editedAt)}</div>` : ""}${mediaHTML(t.media)}
     ${block}${plan}${reacts}
-    <div class="r-sep tag-m">${reps.length ? plural(reps.length, "reply", "replies") : "No replies yet"}</div>
+    <div class="r-sep tag-m">Comments${reps.length ? " · " + reps.length : ""}</div>${reps.length ? "" : `<div class="r-empty">No comments yet. Be the first to write one below.</div>`}
     ${repsHTML}`;
   Object.entries(keepV).forEach(([id, v]) => { const x = document.getElementById(id); if (x) x.value = v; });
   if (keepF){ const x = document.getElementById(keepF.id); if (x){ x.focus({preventScroll:true}); try { if (keepF.s != null) x.setSelectionRange(keepF.s, keepF.e); } catch (e){} } }
@@ -2539,7 +2533,7 @@ function renderDrawer(){
   if (S.stickDrawer || (atBottom && S.growDrawer)){ body.scrollTop = body.scrollHeight; } else body.scrollTop = keep;
   S.stickDrawer = false; S.growDrawer = false;
   const inp = $("#d-input"); inp.disabled = !canPost();
-  inp.placeholder = canPost() ? "Reply… (type @ to mention someone)" : (S.mySeat ? "You can't post right now" : "Pick your seat first");
+  inp.placeholder = canPost() ? "Write a comment… (type @ to mention someone)" : (S.mySeat ? "You can't post right now" : "Pick your seat first");
   S.seen.t[t.id] = Date.now(); saveSeen();
 }
 function openThread(id){
@@ -2564,9 +2558,17 @@ function placeDrawer(){
   if (card){ card.classList.add("is-open"); if (card.nextElementSibling !== d) card.after(d); }
   else if (d.parentNode !== board.parentNode || d.nextElementSibling !== board) board.parentNode.insertBefore(d, board);
 }
+document.addEventListener("submit", e => {
+  if (!e.target || e.target.id !== "ed-form") return;
+  e.preventDefault();
+  const t = S.threads.find(x => x.id === S.editId); if (!t) return;
+  const title = $("#ed-title").value.trim(); if (!title) return;
+  updateThread(t.id, {title:title.slice(0, 140), body:$("#ed-body").value.trim().slice(0, 4000), editedAt:Date.now(), editedBy:S.mySeat});
+  S.editId = null; toast("Post updated"); schedule();
+});
 function closeDrawer(){
   const last = S.openId;
-  S.openId = null;
+  S.openId = null; S.editId = null;
   const d = $("#drawer"); d.classList.remove("open"); d.setAttribute("aria-hidden", "true");
   $("#scrim").classList.remove("on");
   setPresence({view:S.view});
@@ -3034,6 +3036,8 @@ document.addEventListener("click", e => {
     if (a === "close-drawer") closeDrawer();
     else if (a === "dock-toggle"){ const mine = myDock(); dock(mine && mine.state === "office" ? "left" : "office"); }
     else if (a === "pin" && th) updateThread(th.id, {pinned:!th.pinned});
+    else if (a === "edit" && th){ S.editId = th.id; S.editAtt = null; schedule(); setTimeout(() => $("#ed-title")?.focus(), 40); }
+    else if (a === "edit-cancel"){ S.editId = null; schedule(); }
     else if (a === "unseal" && th) updateThread(th.id, {status:"open", decided:null, decidedBy:null});
     else if (a === "del-thread" && th) armThen(el, () => { closeDrawer(); deleteThread(th); }, "Confirm delete");
     else if (a === "settings"){ coachDone(); openMe(); }
