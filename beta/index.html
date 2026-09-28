@@ -689,6 +689,15 @@ button.opt:disabled{cursor:default}
 #scrim.on{opacity:1;pointer-events:auto}
 #drawer{position:fixed;top:0;right:0;bottom:0;width:min(660px,100%);background:var(--panel);border-left:1.5px solid var(--cream);display:flex;flex-direction:column;z-index:30;transform:translateX(100%);visibility:hidden;transition:transform .45s cubic-bezier(.77,0,.18,1),visibility 0s linear .45s;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 #drawer.open{transform:none;visibility:visible;transition:transform .45s cubic-bezier(.77,0,.18,1)}
+/* the plan block stays folded until you need it */
+.plan-tog{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 14px;padding:9px 12px;border:1px dashed var(--line-2);background:transparent;color:var(--muted);font:600 10px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-align:left}
+.plan-tog:hover,.plan-tog.on{border-color:var(--amber);color:var(--text)}
+.plan-tog .pt-k{width:18px;height:18px;display:grid;place-items:center;border:1px solid currentColor;font:700 13px/1 var(--f-mono);flex:none}
+.plan-tog .pt-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plan-tog .pt-bar{width:70px;height:5px;background:rgba(243,239,232,.1);position:relative;flex:none}
+.plan-tog .pt-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--lime)}
+.plan-tog .pt-o{color:var(--dim);flex:none}
+.plan-tog.on + .d-plan{margin-top:-6px}
 /* a file opens right on the page, in a frame above the list */
 #drawer.inline{position:relative;top:auto;right:auto;bottom:auto;left:auto;width:auto;z-index:2;transform:none;visibility:visible;transition:none;border:1.5px solid var(--cream);box-shadow:8px 8px 0 var(--kc,var(--amber));margin:0 0 30px;scroll-margin-top:16px;animation:inlineIn .35s cubic-bezier(.22,1,.36,1)}
 #drawer.inline:not(.open){display:none}
@@ -2435,7 +2444,11 @@ function renderDrawer(){
     return `<div class="reply">${medal(s, 34)}<div><div class="reply-h"><b>${esc(seatName(s))}</b>${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${ago(r.at)}</span>${own ? `<button class="del" data-del-reply="${esc(r.docId)}|${esc(r.id)}">Delete</button>` : ""}</div>${r.text ? `<div class="reply-t">${rich(r.text)}</div>` : ""}${mediaHTML(r.media)}</div></div>`;
   }).join("");
   const P = S.roster.projects || [], st = stepsOf(t), pr = progress(t), can = canPost();
-  const plan = `<div class="d-plan">
+  const planOpen = !!(S.planOpen && S.planOpen[t.id]);
+  const pj = projOf(t.project), ow = seatById(t.owner), dueI = t.due ? dueInfo(t.due, topicDone(t)) : null;
+  const sumBits = [pj ? esc(pj.name) : "", ow ? esc(seatName(ow)) : "", dueI ? esc(dueI.txt) : "", pr ? `${pr.done}/${pr.all} steps` : ""].filter(Boolean);
+  const planBar = `<button type="button" class="plan-tog${planOpen ? " on" : ""}" data-plan-toggle="${esc(t.id)}" aria-expanded="${planOpen}"><span class="pt-k">${planOpen ? "−" : "+"}</span><span class="pt-t">${sumBits.length ? sumBits.join(" · ") : "Plan it: project, owner, due date, steps"}</span>${pr ? `<span class="pt-bar"><i style="width:${Math.round(100 * pr.done / pr.all)}%"></i></span>` : ""}<span class="pt-o">${planOpen ? "Hide" : "Optional"}</span></button>`;
+  const plan = !planOpen ? planBar : planBar + `<div class="d-plan">
     <div class="plan-row">
       <label class="fld"><span>Project</span><select data-plan="project" ${can ? "" : "disabled"}><option value="">No project</option>${P.map(p => `<option value="${esc(p.id)}" ${t.project === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label>
       <label class="fld"><span>Owner</span><select data-plan="owner" ${can ? "" : "disabled"}><option value="">Nobody yet</option>${seats().map(x => `<option value="${esc(x.id)}" ${t.owner === x.id ? "selected" : ""}>${esc(seatName(x))}</option>`).join("")}</select></label>
@@ -2936,6 +2949,7 @@ document.addEventListener("click", e => {
     $(".g-table").scrollIntoView({behavior:smooth, block:"start"});
     return;
   }
+  if ((el = q("[data-plan-toggle]"))){ S.planOpen = S.planOpen || {}; S.planOpen[el.dataset.planToggle] = !S.planOpen[el.dataset.planToggle]; schedule(); return; }
   if ((el = q("[data-step-toggle]"))){ track("step", ""); }
   if ((el = q("[data-step-toggle]"))){ const sid = el.closest("[data-step]").dataset.step; const th = S.threads.find(x => x.id === S.openId); if (th && canPost()) updateThread(th.id, {steps:stepsOf(th).map(x => x.id === sid ? {...x, done:!x.done, doneAt:Date.now()} : x)}); return; }
   if ((el = q("[data-step-del]"))){ armThen(el, () => { const sid = el.closest("[data-step]").dataset.step; const th = S.threads.find(x => x.id === S.openId); if (th) updateThread(th.id, {steps:stepsOf(th).filter(x => x.id !== sid)}); }); return; }
