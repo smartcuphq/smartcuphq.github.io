@@ -2151,7 +2151,7 @@ function clearAtt(w, keepUrls){ S.att[w].forEach(a => { if (!keepUrls || a.st !=
 function mediaCount(t){ return (Array.isArray(t.media) ? t.media.length : 0) + repliesFor(t.id).reduce((n, r) => n + (Array.isArray(r.media) ? r.media.length : 0), 0); }
 
 /* the app version each person runs, so the admin can see who is still on an old copy */
-const APPV = 16;
+const APPV = 17;
 /* ---------- activity: time on each page and what people did, sent once a minute (admin reads it) ---------- */
 const TR = {ms:0, v:{}, a:{}, log:[], lastIn:Date.now(), start:Date.now(), started:false};
 ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(ev => window.addEventListener(ev, () => { TR.lastIn = Date.now(); }, {passive:true, capture:true}));
@@ -2549,7 +2549,7 @@ function renderChat(){
   const typers = S.peers.filter(p => !p.isMe && p.presence && p.presence.typing === ch.id && typeof p.presence.seat === "string").map(p => seatById(p.presence.seat)).filter(Boolean);
   const uniq = [...new Map(typers.map(s => [s.id, s])).values()];
   $("#typing").__h = uniq.length ? `<i><b></b><b></b><b></b></i>${esc(uniq.map(s => seatName(s)).join(", "))} ${uniq.length > 1 ? "are" : "is"} typing…` : "";
-  if (document.visibilityState === "visible" && S.view === "chat"){ const was = chanUnreadRaw(ch.id); S.seen.ch[ch.id] = Date.now(); saveSeen(); if (was) schedule(); }
+  if (document.visibilityState === "visible" && S.view === "chat"){ const was = chanUnreadRaw(ch.id); S.seen.ch[ch.id] = items.reduce((a, m) => Math.max(a, m.at || 0), Date.now()); saveSeen(); if (was) schedule(); }
 }
 
 /* ---------- render: drawer ---------- */
@@ -2636,7 +2636,7 @@ function renderDrawer(){
   S.stickDrawer = false; S.growDrawer = false;
   const inp = $("#d-input"); inp.disabled = !canPost();
   inp.placeholder = canPost() ? "Write a comment… (type @ to mention someone)" : (S.mySeat ? "You can't post right now" : "Pick your seat first");
-  { const was = isUnread(t); S.seen.t[t.id] = Date.now(); saveSeen(); if (was) schedule(); }
+  { const was = isUnread(t); S.seen.t[t.id] = Math.max(Date.now(), lastAct(t).at || 0); saveSeen(); if (was) schedule(); }
 }
 function openThread(id){
   if (S.openId !== id){ const di = $("#d-input"); di.value = ""; clearAtt("d"); di.dispatchEvent(new Event("input")); }
@@ -3095,7 +3095,7 @@ let photoCss = null;
 let photoFrom = null;
 function photoStyles(){
   if (S.names === photoFrom) return; photoFrom = S.names;
-  const css = [...S.names.values()].filter(n => n && n.photo && /^data:image\//.test(n.photo)).map(n => `.ph-${CSS.escape(n.id)}{background-image:url("${n.photo}")}`).join("\n");
+  const css = [...S.names.values()].filter(n => n && n.photo && /^data:image\//.test(n.photo)).map(n => `.medal.photo.ph-${CSS.escape(n.id)}{background-image:url("${n.photo}")}`).join("\n");
   if (css === photoCss) return; photoCss = css;
   let el = document.getElementById("ph-css"); if (!el){ el = document.createElement("style"); el.id = "ph-css"; document.head.appendChild(el); }
   el.textContent = css;
@@ -3111,18 +3111,19 @@ function renderAll(){
   deriveIfChanged(); updateOnline();
   /* in the background only keep counts and pings up to date; draw when the app is back */
   if (document.visibilityState === "hidden"){ pingCheck(); return; }
-  photoStyles();
-  renderBanner(); renderRail();
-  if (S.view === "topics") renderTopics();
-  if (S.view === "chat") renderChat();
-  if (S.view === "needs") renderNeeds();
-  if (S.view === "activity") renderActivity();
-  if (S.view === "profile") renderProfile();
-  if (S.openId) renderDrawer();
-  renderOnboard();
-  renderCoach();
-  renderTabbar();
-  pingCheck();
+  const run = (f) => { try { f(); } catch (e){ console.error("render", f.name, e); } };
+  run(photoStyles);
+  run(renderBanner); run(renderRail);
+  if (S.view === "topics") run(renderTopics);
+  if (S.view === "chat") run(renderChat);
+  if (S.view === "needs") run(renderNeeds);
+  if (S.view === "activity") run(renderActivity);
+  if (S.view === "profile") run(renderProfile);
+  if (S.openId) run(renderDrawer);
+  run(renderOnboard);
+  run(renderCoach);
+  run(renderTabbar);
+  run(pingCheck);
 }
 function renderTabbar(){
   const tb = $("#tabbar"); if (!tb) return;
@@ -3187,6 +3188,7 @@ document.addEventListener("click", e => {
   if ((el = q("[data-un-step]"))){ const [tid, sid] = el.dataset.unStep.split("|"); const th = S.threads.find(x => x.id === tid); if (th && canPost()) updateThread(th.id, {steps:stepsOf(th).map(x => x.id === sid ? {...x, done:!x.done, doneAt:Date.now()} : x)}); return; }
   if ((el = q("[data-un-scope]"))){ S.unScope = el.dataset.unScope; LS.set("unScope", S.unScope); S.unAll = false; schedule(); return; }
   if ((el = q("[data-un-more]"))){ S.unAll = !S.unAll; schedule(); return; }
+  if (q("#badge-topics") && $("#badge-topics").textContent){ go("topics"); S.onlyNew = true; S.catchupDone = true; schedule(); setTimeout(() => $("#board")?.scrollIntoView({behavior:"smooth", block:"start"}), 60); return; }
   if ((el = q("[data-view]"))){ go(el.dataset.view); return; }
   if ((el = q("[data-chan]"))){ S.channel = el.dataset.chan; if (!S.channel.startsWith("dm-")) S.lastChan = S.channel; go("chat"); return; }
   if ((el = q("[data-new]"))){ openNew(el.dataset.new); return; }
