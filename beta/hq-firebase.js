@@ -4,7 +4,7 @@
    room.presence/onPeers, plus media for photos and videos) from Firestore, behind an email sign-in limited to the team. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, collection, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, collection, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, addDoc, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDPCvwE-B5UcIwFauo4aQLWrBpxU8xm2NE",
@@ -139,6 +139,26 @@ function mkMedia(uid){
   };
 }
 
+/* ---------- activity: each person adds their own time and actions per day; only the admin can read it ---------- */
+function mkActivity(uid){
+  const day = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+  return {
+    bump(x){
+      const inc = o => { const r = {}; for (const k in o) if (o[k]) r[k] = increment(o[k]); return r; };
+      const d = {uid, day:day(), seat:x.seat || null, name:x.name || "", last:Date.now()};
+      if (x.ms) d.ms = increment(x.ms);
+      if (x.views && Object.keys(x.views).length) d.views = inc(x.views);
+      if (x.acts && Object.keys(x.acts).length) d.acts = inc(x.acts);
+      if (x.log && x.log.length) d.log = arrayUnion(...x.log);
+      if (x.start) d.starts = arrayUnion(x.start);
+      return setDoc(doc(fs, "activity", uid + "_" + d.day), d, {merge:true}).catch(() => {});
+    },
+    all(){
+      return new Promise((res, rej) => { let u = null, done = false; u = onSnapshot(collection(fs, "activity"), s => { if (done) return; done = true; res(s.docs.map(x => x.data())); setTimeout(() => u && u(), 0); }, e => rej(mapErr(e))); });
+    }
+  };
+}
+
 /* ---------- people (names for the admin's "who sits here") ---------- */
 const people = {};
 function watchPeople(){ onSnapshot(collection(fs, "people"), s => { s.docs.forEach(d => { people[d.id] = d.data(); }); }, () => {}); }
@@ -242,7 +262,7 @@ onAuthStateChanged(auth, async user => {
     profiles: async ids => { const o = {}; (ids || []).forEach(id => { const p = people[id]; o[id] = {id, name:p ? (p.name || p.email || "") : "", isMe:id === uid, guest:false}; }); return o; },
     search: async () => []
   };
-  window.__hqResolve({db, user:userApi, room:mkRoom(uid), media:mkMedia(uid)});
+  window.__hqResolve({db, user:userApi, room:mkRoom(uid), media:mkMedia(uid), activity:mkActivity(uid)});
   const so = $("hq-signout"); if (so) so.addEventListener("click", async () => { await signOut(auth); location.reload(); });
 });
 finishEmailLink();

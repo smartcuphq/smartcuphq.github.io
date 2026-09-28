@@ -27,6 +27,10 @@ service cloud.firestore {
     match /checkins/{id} { allow read, write: if team(); }
     match /names/{id} { allow read, write: if team(); }
     match /needs/{id} { allow read, write: if team(); }
+    match /activity/{id} {
+      allow read: if admin();
+      allow create, update: if team() && id.matches(request.auth.uid + '_.*');
+    }
     match /media/{id} {
       allow read, write: if team();
       match /c/{n} { allow read, write: if team(); }
