@@ -321,8 +321,11 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
 .lc-m .media{max-width:100%}
 .lc-rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .lc-rx:empty{display:none}
-.lc-rb{position:absolute;right:8px;top:0;opacity:0;padding:2px 7px;font-size:13px;line-height:1.3;border:1px solid var(--line-2);background:#100E15;color:var(--muted);cursor:pointer}
-.lc-m:hover .lc-rb,.lc-rb:focus-visible,.lc-rb.on{opacity:1}
+.lc-tools{position:absolute;right:8px;top:0;display:flex;gap:4px}
+.lc-rb.del-m{font:600 9.5px/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px}
+.lc-rb.del-m.arm{opacity:1;color:#FF6B6B;border-color:#FF6B6B}
+.lc-rb{position:static;opacity:0;padding:2px 7px;font-size:13px;line-height:1.3;border:1px solid var(--line-2);background:#100E15;color:var(--muted);cursor:pointer}
+.lc-m:hover .lc-rb,.lc-rb:focus-visible,.lc-rb.on,.lc-rb.arm{opacity:1}
 @media (hover:none){.lc-rb{opacity:.55}}
 .lc-pick{display:inline-flex;gap:0;margin-top:4px;border:1px solid var(--line-2);background:#100E15}
 .lc-pick button{font-size:17px;line-height:1;padding:5px 6px;border:0;background:transparent;cursor:pointer}
@@ -1760,7 +1763,7 @@ function renderDock(){
     const first = !prev || prev.seat !== m.seat || m.at - prev.at > 6 * 60e3;
     const mine = isMineBy(m.by, m.seat);
     const onlyEmo = m.text && m.text.length <= 12 && /^(\p{Extended_Pictographic}|\p{Emoji_Component}|\u200d|\ufe0f|\s)+$/u.test(m.text) && !/^[\d#*\s]+$/.test(m.text);
-    html += `<div class="lc-m${first ? " first" : ""}${mine ? " mine" : ""}" data-mid="${esc(m.id)}"><div class="lc-g">${first ? medal(x, 28) : ""}</div><div>${first ? `<div class="lc-h"><b>${esc(seatName(x))}</b><span class="mono">${clock(m.at)}</span></div>` : ""}${m.text ? `<div class="lc-t${onlyEmo ? " big" : ""}">${rich(m.text)}</div>` : ""}${mediaHTML(m.media)}<div class="lc-rx">${rxHTML(m, can)}</div>${can && S.lcPick === m.id ? `<div class="lc-pick">${REACTS.map(([k, g]) => `<button type="button" class="${(S.idx.reacts.get(m.id) || {})[k]?.mine ? "mine" : ""}" data-mreact="${esc(m.id)}|${k}" aria-label="React ${g}">${g}</button>`).join("")}</div>` : ""}</div>${can ? `<button type="button" class="lc-rb${S.lcPick === m.id ? " on" : ""}" data-mpick="${esc(m.id)}" aria-label="React">☺+</button>` : ""}</div>`;
+    html += `<div class="lc-m${first ? " first" : ""}${mine ? " mine" : ""}" data-mid="${esc(m.id)}"><div class="lc-g">${first ? medal(x, 28) : ""}</div><div>${first ? `<div class="lc-h"><b>${esc(seatName(x))}</b><span class="mono">${clock(m.at)}</span></div>` : ""}${m.text ? `<div class="lc-t${onlyEmo ? " big" : ""}">${rich(m.text)}</div>` : ""}${mediaHTML(m.media)}<div class="lc-rx">${rxHTML(m, can)}</div>${can && S.lcPick === m.id ? `<div class="lc-pick">${REACTS.map(([k, g]) => `<button type="button" class="${(S.idx.reacts.get(m.id) || {})[k]?.mine ? "mine" : ""}" data-mreact="${esc(m.id)}|${k}" aria-label="React ${g}">${g}</button>`).join("")}</div>` : ""}</div>${can ? `<span class="lc-tools">${mine && m.docId.endsWith("__" + myKey()) ? `<button type="button" class="lc-rb del-m" data-del-msg="${esc(m.docId)}|${esc(m.id)}" aria-label="Delete message">Delete</button>` : ""}<button type="button" class="lc-rb${S.lcPick === m.id ? " on" : ""}" data-mpick="${esc(m.id)}" aria-label="React">☺+</button></span>` : ""}</div>`;
     prev = m;
   }
   $("#lc-list").__h = html; hydrateMedia($("#lc-list"));
@@ -2372,7 +2375,7 @@ function ndCard(n){
     ${status}${edit}
     <div class="nd-foot"><span class="nd-by">${medal(s, 20)}<span>Asked by <b>${esc(seatName(s))}</b></span></span>
       ${st !== "have" ? `<button type="button" class="nd-btn" data-nd-plus="${esc(n.id)}" aria-pressed="${iPlus}" ${can && !mine ? "" : "disabled"} title="${esc(plus.map(x => seatName(seatById(x))).join(", "))}">Me too${plus.length ? " · " + plus.length : ""}</button>` : ""}
-      ${acts}${(mine || S.isOwner) && can ? `<button type="button" class="nd-del" data-nd-del="${esc(n.id)}">Delete</button>` : ""}</div>
+      ${acts}${mine && can ? `<button type="button" class="nd-del" data-nd-del="${esc(n.id)}">Delete</button>` : ""}</div>
   </article>`;
 }
 function renderNeeds(){
@@ -2662,7 +2665,7 @@ function renderDrawer(){
   const k = KINDS[t.kind] ? t.kind : "note";
   const author = seatById(t.seat);
   const mine = isMineBy(t.by, t.seat);
-  const canMod = S.isOwner || mine;
+  const canMod = mine; /* only the author edits or deletes a post */
   $("#drawer").style.setProperty("--kc", `var(--k-${k})`);
   $("#d-head").__h = `${kbadge(k, true)}<span class="tag-m" style="color:var(--k-${k})">${KINDS[k].label}${t.no ? " " + topicNo(t) : ""}</span>${statusPill(t)}<span class="spacer"></span>
     ${S.isOwner ? `<button class="btn ghost sm" data-act="pin">${I.pin}${t.pinned ? "Unpin" : "Pin"}</button>` : ""}
@@ -3056,7 +3059,8 @@ async function updateThread(id, patch){ try { await S.db.doc("threads/" + id).up
 async function deleteThread(t){
   try {
     await S.db.doc("threads/" + t.id).delete();
-    for (const [id, d] of S.replyDocs) if (d.thread === t.id) await S.db.doc("replies/" + id).delete().catch(() => {});
+    /* only your own comments go with it; everyone else's words stay saved */
+    for (const [id, d] of S.replyDocs) if (d.thread === t.id && id.endsWith("__" + myKey())) await S.db.doc("replies/" + id).delete().catch(() => {});
     toast("Topic deleted");
   } catch (e){ writeErr(e); }
 }

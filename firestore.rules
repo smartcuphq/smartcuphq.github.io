@@ -22,24 +22,26 @@ service cloud.firestore {
     match /presence/{uid} { allow read: if team(); allow write: if team() && request.auth.uid == uid; }
     function mine(){ return resource.data.by == request.auth.uid; }
     function mineOrOld(){ return !('by' in resource.data) || resource.data.by == null || resource.data.by == request.auth.uid; }
-    // posts: anyone can plan, vote on and move a post along; only its author (or the admin) edits or deletes it
+    // nothing is ever removed automatically; only the person who wrote or uploaded something can delete it
+    // posts: anyone can plan, vote on and move a post along; only its author edits or deletes it (the admin can pin)
     match /threads/{id} {
       allow read: if team();
       allow create: if team() && request.resource.data.by == request.auth.uid;
-      allow delete: if admin() || (team() && mine());
-      allow update: if admin() || (team() && mine())
+      allow delete: if team() && mine();
+      allow update: if (team() && mine())
+        || (admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinned', 'pinnedAt']))
         || (team() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['steps', 'status', 'statusAt', 'decided', 'decidedBy', 'decidedAt', 'answerId', 'project', 'owner', 'due']));
     }
-    // comments and chat: each person's own messages, only they (or the admin) change them
+    // comments and chat: each person's own messages, only they change or delete them
     match /replies/{id} {
       allow read: if team();
       allow create: if team() && request.resource.data.by == request.auth.uid;
-      allow update, delete: if admin() || (team() && mine());
+      allow update, delete: if team() && mine();
     }
     match /chat/{id} {
       allow read: if team();
       allow create: if team() && request.resource.data.by == request.auth.uid;
-      allow update, delete: if admin() || (team() && mine());
+      allow update, delete: if team() && mine();
     }
     match /marks/{id} { allow read, write: if team(); }
     match /checkins/{id} { allow read, write: if team(); }
@@ -47,15 +49,24 @@ service cloud.firestore {
       allow read, create: if team();
       allow update, delete: if admin() || (team() && mineOrOld());
     }
-    match /needs/{id} { allow read, write: if team(); }
+    // needs: anyone can move a tag along (needed, in transit, on the shelf); only the person who added it deletes it
+    match /needs/{id} {
+      allow read, create, update: if team();
+      allow delete: if team() && mineOrOld();
+    }
     match /seen/{uid} { allow read, write: if team() && request.auth.uid == uid; }
     match /activity/{id} {
       allow read: if admin();
       allow create, update: if team() && id.matches(request.auth.uid + '_.*');
     }
+    // photos and videos: only the person who uploaded one can delete it
     match /media/{id} {
-      allow read, write: if team();
-      match /c/{n} { allow read, write: if team(); }
+      allow read, create: if team();
+      allow update, delete: if team() && mineOrOld();
+      match /c/{n} {
+        allow read, create: if team();
+        allow update, delete: if team() && (!exists(/databases/$(database)/documents/media/$(id)) || get(/databases/$(database)/documents/media/$(id)).data.by == request.auth.uid);
+      }
     }
     match /wild/{id} {
       allow read, write: if team();

@@ -134,7 +134,7 @@ function mkMedia(uid){
       return mediaCache.get(id);
     },
     async del(id){
-      try { const m = await getDoc(doc(fs, "media", id)); const n = m.exists() ? m.data().n : 0; await deleteDoc(doc(fs, "media", id)); for (let i = 0; i < n; i++) await deleteDoc(doc(fs, "media", id, "c", String(i))); } catch (e){}
+      try { const m = await getDoc(doc(fs, "media", id)); const n = m.exists() ? m.data().n : 0; for (let i = 0; i < n; i++) await deleteDoc(doc(fs, "media", id, "c", String(i))); await deleteDoc(doc(fs, "media", id)); } catch (e){}
     }
   };
 }
