@@ -1741,7 +1741,25 @@ function forMe(t){
   return repliesFor(t.id).some(r => mentionsMe(r.text));
 }
 function isOpen(t){ return t.kind === "question" ? t.status !== "answered" : t.kind === "decision" ? t.status !== "decided" : t.kind === "idea" ? (t.status || "new") === "new" : false; }
-function saveSeen(){ LS.set("seen", S.seen); }
+/* what each person has opened is kept in their own seen/{uid} doc too, so phone and computer agree */
+let seenRef = null, seenT = 0;
+function saveSeen(){ LS.set("seen", S.seen); if (seenRef){ clearTimeout(seenT); seenT = setTimeout(() => seenRef.set({t:S.seen.t, ch:S.seen.ch, since:S.seen.since || 0}).catch(() => {}), 1200); } }
+function mergeSeen(r){
+  if (!r || typeof r !== "object") return;
+  let changed = false, behind = false;
+  const mx = (dst, src) => { for (const k in (src || {})){ const v = +src[k] || 0; if (v > (dst[k] || 0)){ dst[k] = v; changed = true; } } for (const k in dst) if ((dst[k] || 0) > (+(src || {})[k] || 0)) behind = true; };
+  S.seen.t = S.seen.t || {}; S.seen.ch = S.seen.ch || {};
+  mx(S.seen.t, r.t); mx(S.seen.ch, r.ch);
+  /* the earliest starting point wins, so a new device never hides posts the phone has not opened */
+  if ((+r.since || 0) && (+r.since < (S.seen.since || Infinity))){ S.seen.since = +r.since; changed = true; } else if (!r.since && S.seen.since) behind = true;
+  if (changed){ LS.set("seen", S.seen); schedule(); }
+  if (behind) saveSeen();
+}
+function watchSeen(){
+  if (!S.db || !S.uid || seenRef) return;
+  seenRef = S.db.doc("seen/" + S.uid);
+  seenRef.onSnapshot(d => { if (d && d.exists) mergeSeen(d.data ? d.data() : d); else saveSeen(); }, () => { seenRef = null; });
+}
 const topicNo = t => t.no ? "#" + pad2(t.no) : "";
 
 /* ---------- rich text ---------- */
@@ -2149,7 +2167,7 @@ function clearAtt(w, keepUrls){ S.att[w].forEach(a => { if (!keepUrls || a.st !=
 function mediaCount(t){ return (Array.isArray(t.media) ? t.media.length : 0) + repliesFor(t.id).reduce((n, r) => n + (Array.isArray(r.media) ? r.media.length : 0), 0); }
 
 /* the app version each person runs, so the admin can see who is still on an old copy */
-const APPV = 17;
+const APPV = 18;
 /* ---------- activity: time on each page and what people did, sent once a minute (admin reads it) ---------- */
 const TR = {ms:0, v:{}, a:{}, log:[], lastIn:Date.now(), start:Date.now(), started:false};
 ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(ev => window.addEventListener(ev, () => { TR.lastIn = Date.now(); }, {passive:true, capture:true}));
@@ -3392,6 +3410,7 @@ async function connect(){
   if (!db){ S.offline = true; S.loaded.roster = true; computeIdentity(); schedule(); }
   else {
     S.db = db;
+    watchSeen();
     db.doc("team/roster").onSnapshot(snap => {
       S.roster = snap.exists ? normalizeRoster(snap.data()) : clone(DEFAULT_ROSTER);
       /* calmer palette: the two default projects move off pink and cyan */
