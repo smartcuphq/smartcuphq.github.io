@@ -298,6 +298,50 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
 .panel-h h3{margin:0;font:800 16px/1 var(--f-body);letter-spacing:-.02em;text-transform:uppercase}
 .panel-h h3 span{color:transparent;-webkit-text-stroke:1px var(--cream)}
 .panel-h .tag-m{color:var(--lime)}
+.home-grid{grid-template-columns:minmax(0,1fr) 370px}
+.lc{--pc:var(--cyan);display:flex;flex-direction:column}
+.lc-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(198,255,61,.6);animation:lcPulse 2s infinite}
+@keyframes lcPulse{70%{box-shadow:0 0 0 7px rgba(198,255,61,0)}100%{box-shadow:0 0 0 0 rgba(198,255,61,0)}}
+.lc-on{display:flex;gap:0}.lc-on .medal{margin-left:-6px;box-shadow:0 0 0 2px #08070C}
+.lc-scroll{height:clamp(300px,46vh,460px);overflow-y:auto;overscroll-behavior:contain;padding:8px 0}
+.lc-list{display:flex;flex-direction:column}
+.lc-empty{padding:40px 18px;text-align:center;color:var(--muted);font-size:13.5px}
+.lc-day{align-self:center;margin:8px 0 4px;font:600 9.5px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.lc-m{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr);gap:9px;padding:3px 12px 3px 12px}
+.lc-m.first{margin-top:8px}
+.lc-m:hover{background:rgba(243,239,232,.03)}
+.lc-m .lc-g{padding-top:2px}
+.lc-h{display:flex;gap:7px;align-items:baseline}
+.lc-h b{font-size:13px}
+.lc-h .mono{font-size:10px;color:var(--dim)}
+.lc-t{font-size:14px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;color:#DDD8E2}
+.lc-t.big{font-size:30px;line-height:1.15}
+.lc-m.mine .lc-t{color:var(--text)}
+.lc-m.bot .lc-t{font-size:12.5px;color:var(--muted)}
+.lc-m .media{max-width:100%}
+.lc-rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.lc-rx:empty{display:none}
+.lc-rb{position:absolute;right:8px;top:0;opacity:0;padding:2px 7px;font-size:13px;line-height:1.3;border:1px solid var(--line-2);background:#100E15;color:var(--muted);cursor:pointer}
+.lc-m:hover .lc-rb,.lc-rb:focus-visible,.lc-rb.on{opacity:1}
+@media (hover:none){.lc-rb{opacity:.55}}
+.lc-pick{display:inline-flex;gap:0;margin-top:4px;border:1px solid var(--line-2);background:#100E15}
+.lc-pick button{font-size:17px;line-height:1;padding:5px 6px;border:0;background:transparent;cursor:pointer}
+.lc-pick button:hover,.lc-pick button.mine{background:rgba(240,168,60,.18)}
+.lc-typing{min-height:18px;padding:0 14px;font:400 10.5px/1.6 var(--f-mono);color:var(--muted)}
+.lc-emo{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));border-top:1px solid var(--line-2);padding:6px 8px}
+.lc-emo[hidden]{display:none}
+.lc-emo button{font-size:20px;line-height:1;padding:6px 0;border:0;background:transparent;cursor:pointer}
+.lc-emo button:hover{background:rgba(243,239,232,.07)}
+.lc-comp{display:flex;align-items:stretch;border-top:1.5px solid var(--cream)}
+.lc-comp input{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font:inherit;font-size:15px;padding:12px 6px;outline:none}
+.lc-comp input:disabled{opacity:.5}
+.lc-emo-btn,.lc-send{flex:0 0 44px;border:0;background:transparent;color:var(--muted);font-size:19px;cursor:pointer}
+.lc-emo-btn:hover,.lc-emo-btn[aria-expanded="true"]{color:var(--amber)}
+.lc-send{background:var(--amber);color:#0B0A0F;font-size:15px}
+.lc-send:disabled{background:transparent;color:var(--dim);cursor:default}
+.lc-more{border:0;border-top:1px solid var(--line-2);background:transparent;padding:8px 14px;text-align:left;font:600 9.5px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.lc-more:hover{color:var(--text)}
+.msg .lc-rx{margin-top:6px}
 .who-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));margin:0 -1px -1px 0}
 .g-live .panel{--pc:var(--line-3)}
 .live-list{display:flex;flex-direction:column}
@@ -629,7 +673,7 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
 @keyframes cupBurst{0%{transform:scale(.12);opacity:.95;stroke-width:4}100%{transform:scale(2.1);opacity:0;stroke-width:.3}}
 @media (prefers-reduced-motion:reduce){.cupsvg.flash .burst{animation:none}.un-row.done .un-chk svg{animation:none}}
 
-@media (max-width:1180px){.home-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"who" "table" "live";grid-template-rows:auto}}
+@media (max-width:1180px){.home-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"table" "who" "live";grid-template-rows:auto}}
 @media (max-width:1040px){.hero2{grid-template-columns:minmax(0,1fr)}.hero-cup{max-width:540px;width:100%;margin:0 auto}.bokeh{inset:34% -8% 0 -8%}}
 @media (max-width:640px){.instr{grid-template-columns:repeat(2,minmax(0,1fr))}.instr button:last-child{grid-column:1/-1}.prompt-in small{display:none}}
 
@@ -1231,22 +1275,17 @@ button.opt:disabled{cursor:default}
             </section>
 
             <aside class="g-who" aria-labelledby="who-h">
-              <div class="panel">
-                <div class="panel-h"><span class="tag-m">SEC 02</span><h3 id="who-h">Who's <span>in</span> today</h3><span class="spacer"></span><span class="dock-sum" id="who-sum"></span></div>
-                <div class="who-list" id="who-list"></div>
-                <div class="dock-me">
-                  <div class="seg" role="group" aria-label="Where are you today?">
-                    <button type="button" data-dock="office" aria-pressed="false">At the office</button>
-                    <button type="button" data-dock="remote" aria-pressed="false">Remote</button>
-                    <button type="button" data-dock="off" aria-pressed="false">Off today</button>
-                    <button type="button" data-dock="left" aria-pressed="false" hidden>Leaving</button>
-                  </div>
-                  <form class="dock-note" id="dock-note-form" autocomplete="off">
-                    <input id="dock-note" maxlength="140" placeholder="Today I'm on… (optional)" aria-label="What you're working on today">
-                    <button type="submit" class="btn sm">Post</button>
-                  </form>
-                  <div class="dock-hint" id="dock-hint">Check in once a day. It resets at midnight and posts to #Daily.</div>
-                </div>
+              <div class="panel lc" id="lc">
+                <div class="panel-h"><span class="tag-m">SEC 02</span><h3 id="who-h">Live <span>chat</span></h3><span class="lc-dot" aria-hidden="true"></span><span class="spacer"></span><span class="lc-on" id="lc-on"></span></div>
+                <div class="lc-scroll" id="lc-scroll"><div class="lc-list" id="lc-list"></div></div>
+                <div class="lc-typing" id="lc-typing"></div>
+                <div class="lc-emo" id="lc-emo" hidden></div>
+                <form class="lc-comp" id="lc-form" autocomplete="off">
+                  <button type="button" class="lc-emo-btn" id="lc-emo-btn" aria-label="Emoji" aria-expanded="false">☺</button>
+                  <input id="lc-input" maxlength="2000" placeholder="Message the team…" aria-label="Message the team">
+                  <button type="submit" class="lc-send" id="lc-send" aria-label="Send">➤</button>
+                </form>
+                <button type="button" class="lc-more" data-lc-open>Open the full chat →</button>
               </div>
             </aside>
 
@@ -1689,26 +1728,47 @@ function dock(state, note){
   }
   toast(state === "office" ? "Checked in. The team can see you're at the office." : state === "left" ? "Checked out of the office." : "Checked in: " + DOCK[state].label.toLowerCase() + ".");
 }
+const LC_EMO = ["😀","😂","😅","😍","🥲","😎","🤔","😮","😭","😡","🤯","🥳","👍","👎","👏","🙏","💪","🤝","🔥","💡","❤️","👀","🎯","✅","❌","⚡","🚀","🎉","☕","🍕","💰","🏆"];
+const lcChan = () => (S.roster.channels.find(c => c.id === "general") || S.roster.channels[0] || {}).id;
+function rxHTML(m, can){
+  const rr = S.idx.reacts.get(m.id) || {};
+  return REACTS.filter(([k]) => rr[k] && rr[k].seats.length).map(([k, g]) => `<button type="button" class="r-pill${rr[k].mine ? " mine" : ""}" data-mreact="${esc(m.id)}|${k}" title="${esc(rr[k].seats.map(id => seatName(seatById(id))).join(", "))}" ${can ? "" : "disabled"}>${g}<span class="mono">${rr[k].seats.length}</span></button>`).join("");
+}
 function renderDock(){
-  let office = 0, remote = 0;
-  $("#who-list").__h = seats().map(s => {
-    const d = seatDock(s.id);
-    if (d && d.state === "office") office++;
-    if (d && d.state === "remote") remote++;
-    const on = S.online.has(s.id) && !!S.room;
-    return `<div class="dcup">${medal(s, 34, {glow:d && d.state === "office", dim:!d || d.state === "off"})}<div class="meta"><b>${esc(seatName(s))}${s.id === S.mySeat ? '<span class="you">YOU</span>' : ""}</b>${d ? dockChip(d) : `<span class="dchip">${on ? "Online · not checked in" : "Not checked in"}</span>`}${d && d.note ? `<em>${esc(d.note)}</em>` : ""}</div></div>`;
-  }).join("");
-  $("#who-sum").__h = `<b>${office}</b> office · <b>${remote}</b> remote`;
-  const mine = myDock(); const can = canPost();
-  document.querySelectorAll("[data-dock]").forEach(b => {
-    b.disabled = !can;
-    b.setAttribute("aria-pressed", String(!!mine && mine.state === b.dataset.dock));
-    if (b.dataset.dock === "left") b.hidden = !(mine && mine.state === "office");
-  });
-  const inp = $("#dock-note"); inp.disabled = !can;
-  if (document.activeElement !== inp) inp.placeholder = mine && mine.note ? "Today: " + mine.note : "Today I'm on… (optional)";
-  $("#dock-note-form button").disabled = !can;
-  $("#dock-hint").textContent = can ? "Check in once a day. It resets at midnight and posts to #Daily." : (S.mySeat ? "Checking in isn't available right now." : "Pick your seat to check in.");
+  const ch = lcChan(); if (!ch) return;
+  const can = canPost();
+  const onl = seats().filter(x => S.online.has(x.id) && S.room);
+  $("#lc-on").__h = onl.slice(0, 6).map(x => medal(x, 22, {glow:true})).join("");
+  $("#lc-on").title = onl.length ? onl.map(x => seatName(x)).join(", ") + " online" : "";
+  const inp = $("#lc-input"); inp.disabled = !can;
+  inp.placeholder = can ? "Message the team…" : (S.mySeat ? "You can't post right now" : "Pick your seat first");
+  $("#lc-send").disabled = !can || !inp.value.trim();
+  $("#lc-emo-btn").disabled = !can;
+  const raw = S.idx.chat.get(ch) || [];
+  const mk = [raw.length, raw[raw.length - 1]?.id, S.idx.reacts, S.lcPick, can, S.names, S.mySeat, dayKey(Date.now())];
+  const same = S.lcKey && mk.every((v, i) => v === S.lcKey[i]);
+  S.lcKey = mk;
+  const items = same ? [] : raw.slice(-70).filter(m => !m.bot).slice(-50);
+  if (!same){
+  const sc = $("#lc-scroll"); const atBottom = !S.lcInit || sc.scrollHeight - sc.scrollTop - sc.clientHeight < 60;
+  let html = items.length ? "" : `<div class="lc-empty">No messages yet.<br>Say hi to the team 👋</div>`;
+  let prev = null, lastDay = null;
+  for (const m of items){
+    const dk = dayKey(m.at);
+    if (dk !== lastDay){ html += `<div class="lc-day">${esc(dayLabel(m.at))}</div>`; lastDay = dk; prev = null; }
+    const x = seatById(m.seat);
+    const first = !prev || prev.seat !== m.seat || m.at - prev.at > 6 * 60e3;
+    const mine = isMineBy(m.by, m.seat);
+    const onlyEmo = m.text && m.text.length <= 12 && /^(\p{Extended_Pictographic}|\p{Emoji_Component}|\u200d|\ufe0f|\s)+$/u.test(m.text) && !/^[\d#*\s]+$/.test(m.text);
+    html += `<div class="lc-m${first ? " first" : ""}${mine ? " mine" : ""}" data-mid="${esc(m.id)}"><div class="lc-g">${first ? medal(x, 28) : ""}</div><div>${first ? `<div class="lc-h"><b>${esc(seatName(x))}</b><span class="mono">${clock(m.at)}</span></div>` : ""}${m.text ? `<div class="lc-t${onlyEmo ? " big" : ""}">${rich(m.text)}</div>` : ""}${mediaHTML(m.media)}<div class="lc-rx">${rxHTML(m, can)}</div>${can && S.lcPick === m.id ? `<div class="lc-pick">${REACTS.map(([k, g]) => `<button type="button" class="${(S.idx.reacts.get(m.id) || {})[k]?.mine ? "mine" : ""}" data-mreact="${esc(m.id)}|${k}" aria-label="React ${g}">${g}</button>`).join("")}</div>` : ""}</div>${can ? `<button type="button" class="lc-rb${S.lcPick === m.id ? " on" : ""}" data-mpick="${esc(m.id)}" aria-label="React">☺+</button>` : ""}</div>`;
+    prev = m;
+  }
+  $("#lc-list").__h = html; hydrateMedia($("#lc-list"));
+  if (atBottom || S.stickLc || !S.lcInit){ sc.scrollTop = sc.scrollHeight; S.stickLc = false; if (items.length) S.lcInit = true; }
+  }
+  const typers = [...new Map(S.peers.filter(p => !p.isMe && p.presence && p.presence.typing === ch && typeof p.presence.seat === "string").map(p => seatById(p.presence.seat)).filter(Boolean).map(x => [x.id, x])).values()];
+  $("#lc-typing").__h = typers.length ? `${esc(typers.map(x => seatName(x)).join(", "))} ${typers.length > 1 ? "are" : "is"} typing…` : "";
+  if (document.visibilityState === "visible" && S.view === "topics" && S.lcSeen && chanUnreadRaw(ch)){ S.seen.ch[ch] = raw.reduce((a, m) => Math.max(a, m.at || 0), Date.now()); saveSeen(); schedule(); }
 }
 
 /* ---------- derived indexes ---------- */
@@ -1782,7 +1842,15 @@ function watchSeen(){
 const topicNo = t => t.no ? "#" + pad2(t.no) : "";
 
 /* ---------- rich text ---------- */
+/* the same text renders the same way until names or seats change, so keep the result */
+let richC = new Map(), richK = [];
 function rich(text){
+  const k = [S.names, S.roster, S.mySeat, S.eff];
+  if (k.some((v, i) => v !== richK[i])){ richC = new Map(); richK = k; }
+  const key = text || ""; const hit = richC.get(key); if (hit !== undefined) return hit;
+  const out = richRaw(key); if (richC.size > 3000) richC.clear(); richC.set(key, out); return out;
+}
+function richRaw(text){
   let h = esc(text || "");
   h = h.replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]])/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
   const names = seats().map(s => ({s, n:esc(seatName(s))})).sort((a, b) => b.n.length - a.n.length);
@@ -2129,7 +2197,7 @@ function renderInstr(){
     + cell("i", i, "Ideas in play", i ? "hot" : "")
     + cell("c", c, "Calls to make", c ? "hot" : "")
     + cell("done", done, "Settled this week", done ? "good" : "")
-    + cell("office", `${off}/${seats().length}`, "At the office", off ? "hot" : "");
+    + cell("office", `${seats().filter(x => S.online.has(x.id)).length}/${seats().length}`, "Online now", "");
 }
 /* ---------- photos and videos ---------- */
 const MURL = new Map();
@@ -2574,7 +2642,7 @@ function renderChat(){
     const mine = isMineBy(m.by, m.seat) && m.docId.endsWith("__" + myKey());
     html += `<div class="msg${first ? " first" : ""}${mentionsMe(m.text) ? " mention-me" : ""}">
       <div class="msg-g">${first ? medal(s, 34) : `<span class="mono">${clock(m.at)}</span>`}</div>
-      <div>${first ? `<div class="msg-h"><b>${esc(seatName(s))}</b>${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${clock(m.at)}</span></div>` : ""}${m.text ? `<div class="msg-t">${rich(m.text)}</div>` : ""}${mediaHTML(m.media)}</div>
+      <div>${first ? `<div class="msg-h"><b>${esc(seatName(s))}</b>${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${clock(m.at)}</span></div>` : ""}${m.text ? `<div class="msg-t">${rich(m.text)}</div>` : ""}${mediaHTML(m.media)}<div class="lc-rx">${rxHTML(m, canPost())}</div></div>
       ${mine ? `<button class="del" data-del-msg="${esc(m.docId)}|${esc(m.id)}" aria-label="Delete message">Delete</button>` : "<span></span>"}
     </div>`;
     prev = m;
@@ -3011,13 +3079,14 @@ function removeItem(mapName, coll, id, itemId){
     try { if (doc.items.length) await S.db.doc(coll + "/" + id).set(doc); else await S.db.doc(coll + "/" + id).delete(); } catch (e){ writeErr(e); }
   });
 }
-function sendChat(text, media){
-  track("chat", (chanObj(S.channel) || {}).dm ? "a private message" : "#" + ((chanObj(S.channel) || {}).name || S.channel));
-  const wk = curWk(); const id = `${S.channel}__w${wk}__${myKey()}`;
+function sendChat(text, media, chId){
+  const CH = chId || S.channel;
+  track("chat", (chanObj(CH) || {}).dm ? "a private message" : "#" + ((chanObj(CH) || {}).name || CH));
+  const wk = curWk(); const id = `${CH}__w${wk}__${myKey()}`;
   S.stickChat = true;
   const item = {id:rid("m"), at:Date.now(), seat:S.mySeat, text};
   if (media && media.length) item.media = media;
-  return appendItem("chatDocs", "chat", id, {ch:S.channel, wk, by:S.uid || null}, item);
+  return appendItem("chatDocs", "chat", id, {ch:CH, wk, by:S.uid || null}, item);
 }
 function sendReply(tid, text, media, re){
   { const t = S.threads.find(x => x.id === tid); track("reply", t ? (t.no ? "File " + topicNo(t) + " · " : "") + t.title : ""); }
@@ -3249,6 +3318,11 @@ document.addEventListener("click", e => {
   if ((el = q("[data-close-modal]"))){ closeModal(); return; }
   if ((el = q("[data-to]"))){ el.setAttribute("aria-pressed", el.getAttribute("aria-pressed") !== "true"); return; }
   if ((el = q("[data-vote]"))){ const tid = S.openId; if (tid && canPost()) toggleVote(tid, +el.dataset.vote); return; }
+  if ((el = q("[data-mreact]"))){ const [mid, g] = el.dataset.mreact.split("|"); if (canPost()){ toggleReact(mid, g); S.lcPick = null; } return; }
+  if ((el = q("[data-mpick]"))){ S.lcPick = S.lcPick === el.dataset.mpick ? null : el.dataset.mpick; schedule(); return; }
+  if ((el = q("[data-lc-open]"))){ S.channel = lcChan(); go("chat"); return; }
+  if ((el = q("#lc-emo-btn"))){ const box = $("#lc-emo"); box.hidden = !box.hidden; el.setAttribute("aria-expanded", String(!box.hidden)); if (!box.hidden && !box.childElementCount) box.innerHTML = LC_EMO.map(e => `<button type="button" data-emo="${e}">${e}</button>`).join(""); return; }
+  if ((el = q("[data-emo]"))){ const inp = $("#lc-input"); const a = inp.selectionStart ?? inp.value.length, b = inp.selectionEnd ?? a; inp.value = inp.value.slice(0, a) + el.dataset.emo + inp.value.slice(b); inp.focus(); const c = a + el.dataset.emo.length; try { inp.setSelectionRange(c, c); } catch (e){} $("#lc-send").disabled = !canPost() || !inp.value.trim(); return; }
   if ((el = q("[data-creact]"))){ const [cid, g] = el.dataset.creact.split("|"); if (canPost()){ toggleReact(cid, g); S.pickFor = null; } return; }
   if ((el = q("[data-cpick]"))){ S.pickFor = S.pickFor === el.dataset.cpick ? null : el.dataset.cpick; schedule(); return; }
   if ((el = q("[data-creply]"))){ if (canPost()){ S.replyTo = el.dataset.creply; S.pickFor = null; schedule(); setTimeout(() => $("#d-input").focus(), 30); } return; }
@@ -3259,7 +3333,7 @@ document.addEventListener("click", e => {
   if ((el = q("[data-status]"))){ if (S.openId) updateThread(S.openId, {status:el.dataset.status, statusAt:Date.now()}); return; }
   if ((el = q("[data-instr]"))){
     const k = el.dataset.instr; const smooth = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
-    if (k === "office"){ $(".g-who").scrollIntoView({behavior:smooth, block:"start"}); return; }
+    if (k === "office"){ $(".g-who").scrollIntoView({behavior:smooth, block:"start"}); setTimeout(() => $("#lc-input").focus({preventScroll:true}), 400); return; }
     S.filter = k === "q" ? "question" : k === "i" ? "idea" : k === "c" ? "decision" : "all";
     S.onlyOpen = k !== "done"; S.onlyMine = false; schedule();
     $(".g-table").scrollIntoView({behavior:smooth, block:"start"});
@@ -3349,13 +3423,13 @@ document.addEventListener("keydown", e => {
   }
   if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-open]")){ e.preventDefault(); openThread(e.target.dataset.open); }
 });
-$("#dock-note-form").addEventListener("submit", e => {
-  e.preventDefault();
-  const inp = $("#dock-note"); const v = inp.value.trim(); if (!v) return;
-  const mine = myDock();
-  if (!mine){ toast("Pick where you are first: office, remote or off."); return; }
-  dock(mine.state, v); inp.value = ""; inp.blur();
+$("#lc-form").addEventListener("submit", e => {
+  e.preventDefault(); const inp = $("#lc-input"); const v = inp.value.trim(); if (!v || !canPost()) return;
+  S.stickLc = true; sendChat(v, [], lcChan()); inp.value = ""; $("#lc-send").disabled = true; setPresence({typing:null});
+  $("#lc-emo").hidden = true; $("#lc-emo-btn").setAttribute("aria-expanded", "false");
 });
+$("#lc-input").addEventListener("input", () => { $("#lc-send").disabled = !canPost() || !$("#lc-input").value.trim(); if ($("#lc-input").value){ setPresence({typing:lcChan()}); clearTimeout(typingT); typingT = setTimeout(() => setPresence({typing:null}), 2500); } });
+try { new IntersectionObserver(es => { for (const x of es){ const v = x.isIntersecting; if (v !== S.lcSeen){ S.lcSeen = v; if (v) schedule(); } } }, {threshold:.35}).observe($("#lc-scroll")); } catch (e){ S.lcSeen = true; }
 $("#scrim").addEventListener("click", closeDrawer);
 $("#t-search").addEventListener("input", e => { S.q = e.target.value.trim(); schedule(); });
 $("#t-sort").addEventListener("change", e => { S.sort = e.target.value; LS.set("sort", S.sort); schedule(); });
