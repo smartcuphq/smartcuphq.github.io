@@ -720,6 +720,7 @@ button.opt:disabled{cursor:default}
 #drawer.inline .d-head{position:sticky;top:0;z-index:3;background:var(--panel)}
 @keyframes inlineIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 .card.is-open{display:none}
+#board > #drawer.inline{grid-column:1/-1;margin:0}
 #drawer.inline .d-head{border-bottom:1px solid var(--line-2)}
 #drawer.inline .d-foot{border-top:1px solid var(--line-2);background:rgba(8,7,12,.96)}
 #drawer.inline .d-block{box-shadow:none;border-color:var(--line-2)}
@@ -2355,9 +2356,17 @@ function renderTopics(){
   document.querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-pressed", String(S.layout === b.dataset.layout)));
   board.classList.toggle("list", S.layout === "list");
   const list = filtered();
-  board.innerHTML = list.length ? list.map(cardHTML).join("")
+  const bh = list.length ? list.map(cardHTML).join("")
     : S.threads.length ? `<div class="empty"><b>Nothing matches</b>${S.q ? "No topic has “" + esc(S.q) + "”. " : ""}Try another filter or project.</div>`
     : `<div class="empty-cup">${emptyArt()}<b>Quiet night on the table</b><p><em>Be the first to raise a glass.</em> Post the question you've been sitting on, or the idea you had on the way home.</p>${can ? `<button type="button" class="btn primary" data-new="question">Ask the first question</button>` : ""}</div>`;
+  /* redraw only when something changed, and keep an open file right where its card is */
+  if (bh !== S.boardHTML){
+    const dr = $("#drawer"), ae = document.activeElement, keep = ae && dr.contains(ae) ? {el:ae, s:ae.selectionStart, e:ae.selectionEnd} : null;
+    if (dr.parentNode === board) board.parentNode.insertBefore(dr, board);
+    board.innerHTML = bh; S.boardHTML = bh;
+    placeDrawer();
+    if (keep && keep.el.isConnected){ keep.el.focus({preventScroll:true}); try { if (keep.s != null) keep.el.setSelectionRange(keep.s, keep.e); } catch (x){} }
+  } else placeDrawer();
 }
 function emptyArt(){
   const body = `<path class="c" d="M-24 -84 L24 -84 L19 -6 Q0 2 -19 -6 Z"/><ellipse class="rim" cx="0" cy="-84" rx="24" ry="5"/>`;
@@ -2501,15 +2510,24 @@ function renderDrawer(){
 function openThread(id){
   if (S.openId !== id){ const di = $("#d-input"); di.value = ""; clearAtt("d"); di.dispatchEvent(new Event("input")); }
   S.openId = id; S.stickDrawer = false;
-  const d = $("#drawer"), board = $("#board");
+  const d = $("#drawer");
   if (S.view !== "topics") go("topics");
-  if (board && d.parentNode !== board.parentNode) board.parentNode.insertBefore(d, board);
   d.classList.add("inline", "open"); d.setAttribute("aria-hidden", "false");
+  document.querySelectorAll("#board .card.is-open").forEach(c => c.classList.remove("is-open"));
+  placeDrawer();
   $("#d-body").scrollTop = 0;
   renderDrawer(); schedule();
   requestAnimationFrame(() => d.scrollIntoView({behavior:"smooth", block:"start"}));
   setPresence({view:"t:" + id});
   setTimeout(() => { if (window.matchMedia("(min-width: 861px)").matches && !$("#d-input").disabled) $("#d-input").focus({preventScroll:true}); else $("#d-head .icon-btn")?.focus({preventScroll:true}); }, 60);
+}
+/* the open file sits in the list in place of its card (or on top if the card is filtered out) */
+function placeDrawer(){
+  const d = $("#drawer"), board = $("#board"); if (!d || !board) return;
+  if (!S.openId || !d.classList.contains("inline")) return;
+  const card = board.querySelector(`.card[data-open="${CSS.escape(S.openId)}"]`);
+  if (card){ card.classList.add("is-open"); if (card.nextElementSibling !== d) card.after(d); }
+  else if (d.parentNode !== board.parentNode || d.nextElementSibling !== board) board.parentNode.insertBefore(d, board);
 }
 function closeDrawer(){
   const last = S.openId;
