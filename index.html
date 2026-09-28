@@ -14,7 +14,7 @@
   --cream:#F3EFE8; --text:#F3EFE8; --muted:#9C97A6; --dim:#6B6570;
   --line:rgba(243,239,232,.13); --line-2:rgba(243,239,232,.28); --line-3:rgba(243,239,232,.62);
   --amber:#F0A83C; --amber-soft:rgba(240,168,60,.35); --cyan:#22E4FF; --pink:#FF2FB9; --lime:#C6FF3D; --magenta:#C13BD6; --red:#FF4632;
-  --k-question:#22E4FF; --k-idea:#F0A83C; --k-decision:#FF2FB9; --k-note:#C6FF3D;
+  --k-question:#7CCFDD; --k-idea:#F0A83C; --k-decision:#D98CBE; --k-note:#B9D48A;
   --f-body:"Inter","Noto Sans Georgian",system-ui,-apple-system,sans-serif;
   --f-serif:"Fraunces","Noto Sans Georgian",Georgia,serif;
   --f-mono:"JetBrains Mono","Noto Sans Georgian",ui-monospace,Menlo,Consolas,monospace;
@@ -299,7 +299,7 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
 .panel-h h3 span{color:transparent;-webkit-text-stroke:1px var(--cream)}
 .panel-h .tag-m{color:var(--lime)}
 .who-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));margin:0 -1px -1px 0}
-.g-live .panel{--pc:var(--magenta)}
+.g-live .panel{--pc:var(--line-3)}
 .live-list{display:flex;flex-direction:column}
 .lw{display:grid;grid-template-columns:40px 22px minmax(0,1fr);gap:10px;align-items:start;width:100%;padding:10px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer;font-size:13px;line-height:1.45;color:var(--muted)}
 .lw:last-child{border-bottom:0}
@@ -411,6 +411,34 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
   .nd-col-h{display:none}
   .nd-grid{grid-template-columns:minmax(0,1fr)}
 }
+/* my profile */
+.medal.photo{background:var(--c) center/cover no-repeat;color:transparent}
+.pf{padding:34px clamp(16px,4vw,48px) 90px}
+.pf-hero{display:flex;align-items:center;gap:28px;flex-wrap:wrap;padding:26px;border:1px solid rgba(243,239,232,.14);background:radial-gradient(90% 140% at 0% 50%,color-mix(in srgb,var(--pc) 16%,transparent),transparent 60%),#0B0A10;margin-bottom:24px}
+.pf-av{position:relative;flex:none}
+.pf-av .medal{box-shadow:0 0 0 3px var(--void),0 0 0 5px var(--pc),0 0 40px -6px var(--pc);font-size:54px}
+.pf-cam{position:absolute;right:2px;bottom:2px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--cream);color:var(--void);cursor:pointer;box-shadow:0 0 0 3px var(--void)}
+.pf-cam svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.pf-cam input{position:absolute;width:1px;height:1px;opacity:0}
+.pf-id{min-width:0;flex:1}
+.pf-id h1{margin:6px 0 4px;font:800 clamp(34px,5vw,56px)/.95 var(--f-body);letter-spacing:-.04em;text-transform:uppercase;overflow-wrap:anywhere}
+.pf-id p{margin:0;color:var(--muted)}
+.pf-stats{display:flex;gap:26px;margin-top:16px}
+.pf-stats b{display:block;font:800 26px/1 var(--f-body);color:var(--pc)}
+.pf-stats span{font:600 9.5px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pf-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start}
+.pf-card{border:1px solid rgba(243,239,232,.14);background:#0B0A10;padding:18px 18px 16px}
+.pf-card h2{margin:0 0 14px;font:800 17px/1 var(--f-body);text-transform:uppercase;letter-spacing:-.01em}
+.pf-photo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.pf-photo .mono{flex-basis:100%}
+.pf-save{display:flex;align-items:center;gap:10px;margin-top:6px}
+.pf-posts{display:flex;flex-direction:column}
+.pf-post{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:3px;padding:10px 0 10px 12px;border-bottom:1px solid rgba(243,239,232,.08);position:relative}
+.pf-post::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;background:var(--kc)}
+.pf-post .k{font:600 9.5px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--kc)}
+.pf-post b{font-size:15px}
+.pf-post:hover b{color:#fff}
+@media (max-width:900px){.pf-grid{grid-template-columns:minmax(0,1fr)}.pf-hero{padding:18px;gap:18px}.pf-av .medal{--s:96px!important;font-size:40px}}
 /* activity: admin only */
 .ac{padding:34px clamp(16px,4vw,48px) 90px}
 .ac .hero h1 span{color:transparent;-webkit-text-stroke:1.3px var(--cream)}
@@ -689,6 +717,106 @@ button.opt:disabled{cursor:default}
 #scrim.on{opacity:1;pointer-events:auto}
 #drawer{position:fixed;top:0;right:0;bottom:0;width:min(660px,100%);background:var(--panel);border-left:1.5px solid var(--cream);display:flex;flex-direction:column;z-index:30;transform:translateX(100%);visibility:hidden;transition:transform .45s cubic-bezier(.77,0,.18,1),visibility 0s linear .45s;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 #drawer.open{transform:none;visibility:visible;transition:transform .45s cubic-bezier(.77,0,.18,1)}
+/* the board is one calm feed: every file full width, top to bottom, dark frames */
+.g-table .board:not(.list){grid-template-columns:minmax(0,1fr);gap:12px}
+.card{background:#0B0A10;-webkit-backdrop-filter:none;backdrop-filter:none;border-color:rgba(243,239,232,.10)}
+.card:hover{transform:none;box-shadow:none;border-color:rgba(243,239,232,.26);background:#0E0C14}
+.card.pinned{border-color:rgba(243,239,232,.30)}
+.card-band{background:rgba(243,239,232,.02);border-bottom-color:rgba(243,239,232,.08)}
+.card:hover .card-band{background:rgba(243,239,232,.035)}
+.card-foot{border-top-color:rgba(243,239,232,.08)}
+.card .no{-webkit-text-stroke-color:color-mix(in srgb,var(--kc) 16%,transparent)}
+.board:not(.list) .card h3{font-size:21px;font-weight:800}
+.card .opts .opt,.card .opt{border-color:rgba(243,239,232,.14)}
+.opt{background:#0E0C14}
+.opt-bar{background:color-mix(in srgb,var(--k-decision) 16%,transparent)}
+.opt.mine{border-color:color-mix(in srgb,var(--k-decision) 70%,transparent);box-shadow:none}
+/* a post's photo, big on its card like a social post */
+.card-media{position:relative;margin:2px -18px 4px;max-height:560px;background:#050407 center/cover no-repeat;overflow:hidden;border-top:1px solid rgba(243,239,232,.08);border-bottom:1px solid rgba(243,239,232,.08)}
+.card-media img{display:block;width:100%;height:100%;max-height:560px;object-fit:contain;background:#050407}
+.card-media.loading::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(243,239,232,.06) 50%,transparent 70%);animation:mtShim 1.2s linear infinite}
+.card-media .play{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;display:grid;place-items:center;background:rgba(4,3,8,.7);border:2px solid var(--cream);color:var(--cream)}
+.card-media .play svg{width:24px;height:24px;fill:currentColor;stroke:none;margin-left:4px}
+.card-media .more{position:absolute;right:12px;bottom:12px;padding:5px 10px;background:rgba(4,3,8,.8);border:1px solid var(--line-3);font:700 12px/1 var(--f-mono);color:var(--cream)}
+.card-band + .card-media{margin-top:-8px}
+.board.list .card-media{display:none}
+#drawer.inline .d-head,#drawer.inline .d-title{cursor:pointer}
+#drawer.inline .d-head .spacer{display:flex;justify-content:center;align-self:stretch;align-items:center}
+#drawer.inline .d-head .spacer::before{content:"▴ Tap to close";font:600 9px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#drawer.inline .d-head:hover .spacer::before{color:var(--text)}
+@media (max-width:640px){#drawer.inline .d-head .spacer::before{content:"▴ Close"}}
+/* quieter posts: smaller titles and numbers, tighter spacing, photos capped (tap for full size) */
+.card{padding:13px 16px 12px;gap:8px}
+.card-band{margin:-13px -16px 2px;padding:7px 12px 7px 11px}
+.card h3,.card.wide h3,.board:not(.list) .card h3{font-size:17px;font-weight:700;line-height:1.3}
+.card .excerpt{font-size:13.5px;-webkit-line-clamp:2}
+.card .no{font-size:64px;top:30px;right:0;-webkit-text-stroke-color:color-mix(in srgb,var(--kc) 11%,transparent)}
+.card-foot{padding-top:8px;font-size:12.5px}
+.card-foot .medal{--s:20px!important}
+.card-media{margin:0 -16px 2px;max-height:360px}
+.card-media img{max-height:360px}
+.card-band + .card-media{margin-top:-6px}
+.g-table .board:not(.list){gap:10px}
+.d-title{font-size:clamp(21px,2.2vw,25px)!important;margin-bottom:12px}
+.d-no{font-size:84px;top:-2px;-webkit-text-stroke-color:color-mix(in srgb,var(--kc) 18%,transparent)}
+.d-body{padding:18px 20px 22px}
+.d-text{font-size:15px}
+#drawer.inline .mg.one{grid-template-columns:minmax(0,340px)}
+#drawer.inline .mg.one .mt{max-height:300px}
+#drawer.inline .mg.one .mt img{max-height:296px}
+/* ~12% smaller again */
+.card{padding:11px 14px 10px;gap:7px}
+.card-band{margin:-11px -14px 1px;padding:6px 11px 6px 10px}
+.card-band .tag-m,.card-band .mono,.card-band .pill{font-size:8.5px}
+.card-band .kbadge,.card-band .kb{transform:scale(.88)}
+.card h3,.card.wide h3,.board:not(.list) .card h3{font-size:15px}
+.card .excerpt{font-size:12.5px}
+.card .no{font-size:56px;top:28px}
+.card-foot{padding-top:7px;font-size:11.5px}
+.card-foot .medal{--s:18px!important}
+.card-media{margin:0 -14px 1px;max-height:310px}
+.card-media img{max-height:310px}
+.card .opt{padding:7px 10px;font-size:13px}
+.g-table .board:not(.list){gap:9px}
+.d-title{font-size:clamp(19px,1.95vw,22px)!important}
+.d-no{font-size:74px}
+.d-text{font-size:14px}
+.d-body{padding:16px 18px 20px}
+/* the accepted answer */
+.reply.is-answer{background:rgba(198,255,61,.05);box-shadow:inset 3px 0 0 var(--lime)}
+.ans-tag{display:inline-block;margin-bottom:4px;padding:2px 7px;background:var(--lime);color:var(--void);font:800 9.5px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+.ans-btn{margin-left:auto;background:none;border:1px solid rgba(198,255,61,.5);color:var(--lime);font:700 9.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;cursor:pointer}
+.ans-btn:hover{background:var(--lime);color:var(--void)}
+/* editing a post, and the comments section */
+.ed-form{display:flex;flex-direction:column;gap:4px;margin:0 0 18px;padding:14px;border:1px solid var(--amber);background:rgba(240,168,60,.05)}
+.ed-form input,.ed-form textarea{font-size:16px}
+.ed-form #ed-title{font:700 20px/1.3 var(--f-body)}
+.ed-row{display:flex;justify-content:flex-end;gap:8px}
+.d-edited{margin:-10px 0 16px;color:var(--dim);font-size:10px}
+.r-sep{color:var(--text)!important;font-size:11px!important}
+.r-empty{margin:-6px 0 8px;color:var(--muted);font-size:13.5px}
+/* the plan block stays folded until you need it */
+.plan-tog{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 14px;padding:9px 12px;border:1px dashed var(--line-2);background:transparent;color:var(--muted);font:600 10px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-align:left}
+.plan-tog:hover,.plan-tog.on{border-color:var(--amber);color:var(--text)}
+.plan-tog .pt-k{width:18px;height:18px;display:grid;place-items:center;border:1px solid currentColor;font:700 13px/1 var(--f-mono);flex:none}
+.plan-tog .pt-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plan-tog .pt-bar{width:70px;height:5px;background:rgba(243,239,232,.1);position:relative;flex:none}
+.plan-tog .pt-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--lime)}
+.plan-tog .pt-o{color:var(--dim);flex:none}
+.plan-tog.on + .d-plan{margin-top:-6px}
+/* a file opens right on the page, in a frame above the list */
+#drawer.inline{position:relative;top:auto;right:auto;bottom:auto;left:auto;width:auto;z-index:2;transform:none;visibility:visible;transition:none;border:1px solid var(--cream);box-shadow:none;background:rgba(8,7,12,.9);margin:0 0 30px;scroll-margin-top:16px;animation:inlineIn .35s cubic-bezier(.22,1,.36,1)}
+#drawer.inline:not(.open){display:none}
+#drawer.inline .d-body{overflow:visible;flex:none}
+#drawer.inline .d-foot{position:sticky;bottom:0;z-index:3}
+#drawer.inline .d-head{position:sticky;top:0;z-index:3;background:var(--panel)}
+@keyframes inlineIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.card.is-open{display:none}
+#board > #drawer.inline{grid-column:1/-1;margin:0}
+#drawer.inline .d-head{border-bottom:1px solid var(--line-2)}
+#drawer.inline .d-foot{border-top:1px solid var(--line-2);background:rgba(8,7,12,.96)}
+#drawer.inline .d-block{box-shadow:none;border-color:var(--line-2)}
+#drawer.inline .d-no{opacity:.5}
 .d-head{display:flex;align-items:center;gap:8px;padding:10px 12px 10px 18px;border-bottom:1.5px solid var(--cream);flex-wrap:wrap}
 .d-body{flex:1;overflow:auto;padding:24px 24px 28px;overscroll-behavior:contain;position:relative}
 .d-no{position:absolute;right:10px;top:-8px;font:800 120px/1 var(--f-body);letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--kc) 35%,transparent);pointer-events:none}
@@ -1127,6 +1255,9 @@ button.opt:disabled{cursor:default}
       </div>
     </section>
 
+    <section class="view" id="v-profile" hidden aria-label="My profile">
+      <div class="scroll" id="profile-scroll"><div class="pf"><div class="wrap" id="profile-in"></div></div></div>
+    </section>
     <section class="view" id="v-activity" hidden aria-label="Activity">
       <div class="scroll" id="activity-scroll"><div class="ac"><div class="wrap" id="activity-in"></div></div></div>
     </section>
@@ -1149,7 +1280,7 @@ button.opt:disabled{cursor:default}
     <div class="att-tray" id="d-att"></div>
     <div class="composer has-att">
       <label class="att-btn" title="Add photos or videos"><input type="file" id="d-file" accept="image/*,video/*" multiple aria-label="Add photos or videos"><span id="d-clip"></span></label>
-      <textarea id="d-input" rows="1" placeholder="Reply… (type @ to mention someone)" aria-label="Reply"></textarea>
+      <textarea id="d-input" rows="1" placeholder="Write a comment… (type @ to mention someone)" aria-label="Write a comment"></textarea>
       <button class="send" id="d-send" aria-label="Send reply" disabled></button>
     </div>
   </div>
@@ -1271,7 +1402,9 @@ const I = {
   topics:'<svg viewBox="0 0 24 24"><path d="M4 4.5h7v7H4zM13 4.5h7v4h-7zM13 10.5h7v9h-7zM4 13.5h7v6H4z"/></svg>',
   send:'<svg viewBox="0 0 24 24"><path d="M4.5 12 19.5 4.5l-5.5 15-3-6.5z"/><path d="M11 13l8.5-8.5"/></svg>',
   close:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
   box:'<svg viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>',
+  camera:'<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
   pulse:'<svg viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>',
   clip:'<svg viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.2-8.2a3.3 3.3 0 0 1 4.7 4.7l-8.2 8.2a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/></svg>',
   play:'<svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg>',
@@ -1352,8 +1485,8 @@ const DEFAULT_ROSTER = {
   ],
   projects:[
     {id:"p-proto", name:"Prototype #01", color:"amber"},
-    {id:"p-brand", name:"Brand & launch", color:"pink"},
-    {id:"p-money", name:"Funding & legal", color:"cyan"},
+    {id:"p-brand", name:"Brand & launch", color:"sand"},
+    {id:"p-money", name:"Funding & legal", color:"steel"},
   ],
   channels:[
     {id:"general", name:"General", desc:"Anything the whole team should see"},
@@ -1436,7 +1569,8 @@ function seatSub(seat){ return seat && seatName(seat) !== ((seat.role || "").tri
 function initial(seat){ const src = (seatName(seat) || "?"); return Array.from(src)[0].toUpperCase(); }
 function medal(seat, size=30, opt={}){
   if (!seat) return `<span class="medal ghost" style="--s:${size}px" aria-hidden="true"></span>`;
-  const e = cup(opt.color || colorOf(seat));
+  const e = cup(opt.color || colorOf(seat)), ph = opt.photo !== undefined ? opt.photo : (own(seat) || {}).photo;
+  if (ph) return `<span class="medal photo${opt.glow ? " glow" : ""}${opt.dim ? " dimmed" : ""}" style="--s:${size}px;--c:${e.c};--cf:${e.f};background-image:url('${esc(ph)}')" aria-hidden="true"></span>`;
   return `<span class="medal${opt.glow ? " glow" : ""}${opt.dim ? " dimmed" : ""}" style="--s:${size}px;--c:${e.c};--cf:${e.f}" aria-hidden="true">${esc(initial(seat))}</span>`;
 }
 function chipSeat(id){ const s = seatById(id); return s ? `<span class="chip-seat">${medal(s,18)}${esc(seatName(s))}</span>` : ""; }
@@ -1691,7 +1825,7 @@ function renderRail(){
   let foot = "";
   if (me){
     foot += `<div class="me">${medal(me, 36, {glow:true})}<div class="seat-meta"><b>${esc(seatName(me))}</b><span class="seat-role">${esc(me.role || "")}</span></div></div>`;
-    foot += `<button class="dock-quick" data-act="settings"><span class="sq"></span>My settings<small>Name · color · seat</small></button>`;
+    foot += `<button class="dock-quick" data-view="profile" aria-current="${S.view === "profile"}"><span class="sq"></span>My profile<small>Photo · name · color</small></button>`;
   } else if (!S.offline && !S.readOnly && S.loaded.roster){
     foot += `<button class="btn primary" data-act="switch-seat">Pick your seat</button>`;
   }
@@ -1727,6 +1861,14 @@ function reactMini(target){
   const parts = REACTS.filter(([k]) => m[k] && m[k].seats.length).map(([k, g]) => `<span>${g}<span class="mono">${m[k].seats.length}</span></span>`);
   return parts.length ? `<span class="reacts-mini">${parts.join("")}</span>` : "";
 }
+function cardMedia(t){
+  const list = Array.isArray(t.media) ? t.media.filter(m => m && m.id) : [];
+  if (!list.length) return "";
+  const m = list.find(x => x.kind === "image") || list[0];
+  const src = m.kind === "image" ? MURL.get(m.id) : m.poster;
+  const ar = m.w && m.h ? `aspect-ratio:${m.w}/${m.h}` : "aspect-ratio:16/10";
+  return `<div class="card-media${src ? "" : " loading"}" style="${ar}">${src ? `<img alt="" src="${esc(src)}">` : m.kind === "image" ? `<img alt="" data-mimg="${esc(m.id)}">` : ""}${m.kind === "video" ? `<span class="play">${I.play}</span>` : ""}${list.length > 1 ? `<span class="more">+${list.length - 1}</span>` : ""}</div>`;
+}
 function cardHTML(t){
   const k = KINDS[t.kind] ? t.kind : "note";
   const seat = seatById(t.seat);
@@ -1743,13 +1885,14 @@ function cardHTML(t){
   if (ow) tm += `<span class="owner">${medal(ow, 18)}${esc(seatName(ow))}</span>`;
   if (tm) special = `<div class="tmeta">${tm}</div>` + special;
   if (pr) special += `<div class="prog"><div class="prog-bar"><i style="width:${Math.round(100 * pr.done / pr.all)}%"></i></div><span class="mono">${pr.done}/${pr.all} steps</span></div>`;
-  return `<article class="card k-${k}${wide ? " wide" : ""}${t.pinned ? " pinned" : ""}" tabindex="0" data-open="${esc(t.id)}" style="--kc:var(--k-${k})" aria-label="${esc(KINDS[k].label + ": " + t.title)}">
+  return `<article class="card k-${k}${wide ? " wide" : ""}${t.pinned ? " pinned" : ""}${S.openId === t.id ? " is-open" : ""}" tabindex="0" data-open="${esc(t.id)}" style="--kc:var(--k-${k})" aria-label="${esc(KINDS[k].label + ": " + t.title)}">
     ${t.no ? `<span class="no" aria-hidden="true">${pad2(t.no)}</span>` : ""}
     <div class="card-band">${kbadge(k, true)}<span class="tag-m kind-label">${t.no ? "File " + topicNo(t) + " · " : ""}${KINDS[k].label}</span>${statusPill(t)}<span class="spacer"></span>${t.pinned ? `<span class="pin-i" title="Pinned">${I.pin}</span>` : ""}${isUnread(t) ? '<span class="unread" title="New activity"></span>' : ""}<span class="mono">${ago(lastAct(t).at)}</span></div>
+    ${cardMedia(t)}
     <h3>${esc(t.title)}</h3>
     ${t.body ? `<p class="excerpt">${esc(t.body)}</p>` : ""}
     ${special}
-    <div class="card-foot">${medal(seat, 24)}<span><b>${esc(seatName(seat))}</b></span><span class="spacer"></span>${mediaCount(t) ? `<span class="replies" title="Photos and videos"><span class="ic">${I.clip}</span><span class="mono">${mediaCount(t)}</span></span>` : ""}${reactMini(t.id)}<span class="replies" title="${esc(plural(reps.length, "reply", "replies"))}"><span class="ic">${I.reply}</span><span class="mono">${reps.length}</span>${repliers.length ? `<span class="stack">${repliers.map(s => medal(s, 20)).join("")}</span>` : ""}</span></div>
+    <div class="card-foot">${medal(seat, 24)}<span><b>${esc(seatName(seat))}</b></span><span class="spacer"></span>${mediaCount(t) ? `<span class="replies" title="Photos and videos"><span class="ic">${I.clip}</span><span class="mono">${mediaCount(t)}</span></span>` : ""}${reactMini(t.id)}<span class="replies" title="${esc(plural(reps.length, "comment", "comments"))}"><span class="ic">${I.reply}</span><span class="mono">${reps.length}</span>${repliers.length ? `<span class="stack">${repliers.map(s => medal(s, 20)).join("")}</span>` : ""}</span></div>
   </article>`;
 }
 const projOf = id => (S.roster.projects || []).find(p => p.id === id) || null;
@@ -1954,7 +2097,7 @@ function hydrateMedia(root){
   if (!S.media || !root) return;
   root.querySelectorAll("img[data-mimg]").forEach(img => {
     const id = img.dataset.mimg; img.removeAttribute("data-mimg");
-    S.media.url(id).then(u => { MURL.set(id, u); img.src = u; img.closest(".mt")?.classList.remove("loading"); }, () => { img.closest(".mt")?.classList.remove("loading"); });
+    S.media.url(id).then(u => { MURL.set(id, u); img.src = u; img.closest(".mt, .card-media")?.classList.remove("loading"); }, () => { img.closest(".mt, .card-media")?.classList.remove("loading"); });
   });
 }
 function openLightbox(id, kind){
@@ -2318,9 +2461,17 @@ function renderTopics(){
   document.querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-pressed", String(S.layout === b.dataset.layout)));
   board.classList.toggle("list", S.layout === "list");
   const list = filtered();
-  board.innerHTML = list.length ? list.map(cardHTML).join("")
+  const bh = list.length ? list.map(cardHTML).join("")
     : S.threads.length ? `<div class="empty"><b>Nothing matches</b>${S.q ? "No topic has “" + esc(S.q) + "”. " : ""}Try another filter or project.</div>`
     : `<div class="empty-cup">${emptyArt()}<b>Quiet night on the table</b><p><em>Be the first to raise a glass.</em> Post the question you've been sitting on, or the idea you had on the way home.</p>${can ? `<button type="button" class="btn primary" data-new="question">Ask the first question</button>` : ""}</div>`;
+  /* redraw only when something changed, and keep an open file right where its card is */
+  if (bh !== S.boardHTML){
+    const dr = $("#drawer"), ae = document.activeElement, keep = ae && dr.contains(ae) ? {el:ae, s:ae.selectionStart, e:ae.selectionEnd} : null;
+    if (dr.parentNode === board) board.parentNode.insertBefore(dr, board);
+    board.innerHTML = bh; S.boardHTML = bh;
+    placeDrawer(); hydrateMedia(board);
+    if (keep && keep.el.isConnected){ keep.el.focus({preventScroll:true}); try { if (keep.s != null) keep.el.setSelectionRange(keep.s, keep.e); } catch (x){} }
+  } else placeDrawer();
 }
 function emptyArt(){
   const body = `<path class="c" d="M-24 -84 L24 -84 L19 -6 Q0 2 -19 -6 Z"/><ellipse class="rim" cx="0" cy="-84" rx="24" ry="5"/>`;
@@ -2391,6 +2542,7 @@ function renderDrawer(){
   $("#drawer").style.setProperty("--kc", `var(--k-${k})`);
   $("#d-head").innerHTML = `${kbadge(k, true)}<span class="tag-m" style="color:var(--k-${k})">${KINDS[k].label}${t.no ? " " + topicNo(t) : ""}</span>${statusPill(t)}<span class="spacer"></span>
     ${S.isOwner ? `<button class="btn ghost sm" data-act="pin">${I.pin}${t.pinned ? "Unpin" : "Pin"}</button>` : ""}
+    ${canMod && S.db && S.editId !== t.id ? `<button class="btn ghost sm" data-act="edit">${I.edit}Edit</button>` : ""}
     ${canMod && S.db ? `<button class="btn ghost sm" data-act="del-thread">${I.trash}Delete</button>` : ""}
     <button class="icon-btn" data-act="close-drawer" aria-label="Close">${I.close}</button>`;
   let block = "";
@@ -2403,10 +2555,11 @@ function renderDrawer(){
         ? `<div class="row"><button class="btn sm" data-act="unseal">Undo decision</button></div>`
         : `<div class="row"><span class="tag-m">Make the call</span>${(t.options || []).map((o, i) => `<button class="btn sm" data-seal="${i}">${esc(o)}</button>`).join("")}</div>`) : ""}
     </div>`;
-  } else if (k === "question" && (mine || S.isOwner) && S.db){
-    block = `<div class="d-block"><div class="row">${t.status === "answered"
-      ? `<span>Answer received.</span><span class="spacer"></span><button class="btn sm" data-status="open">Reopen</button>`
-      : `<span>Got your answer?</span><span class="spacer"></span><button class="btn sm primary" data-status="answered">Mark answered</button>`}</div></div>`;
+  } else if (k === "question"){
+    const ans = t.answerId ? repliesFor(t.id).find(r => r.id === t.answerId) : null, aby = ans ? seatById(ans.seat) : null;
+    block = `<div class="d-block q-block"><div class="row">${t.status === "answered"
+      ? `<span>✓ Answered${aby ? ` by <b>${esc(seatName(aby))}</b>` : ""}.</span><span class="spacer"></span>${(mine || S.isOwner) && S.db ? `<button class="btn sm" data-answer="">Reopen</button>` : ""}`
+      : `<span>${mine ? "When a comment answers your question, tap <b>✓ This answers it</b> on it." : "Know the answer? Write it as a comment below."}</span>`}</div></div>`;
   } else if (k === "idea" && isDecider() && S.db){
     const st = t.status || "new";
     block = `<div class="d-block"><div class="row"><span class="tag-m">What happens next</span><span class="spacer"></span>
@@ -2424,10 +2577,16 @@ function renderDrawer(){
   const repsHTML = reps.map(r => {
     const s = seatById(r.seat);
     const own = isMineBy(r.by, r.seat) && r.docId.endsWith("__" + myKey());
-    return `<div class="reply">${medal(s, 34)}<div><div class="reply-h"><b>${esc(seatName(s))}</b>${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${ago(r.at)}</span>${own ? `<button class="del" data-del-reply="${esc(r.docId)}|${esc(r.id)}">Delete</button>` : ""}</div>${r.text ? `<div class="reply-t">${rich(r.text)}</div>` : ""}${mediaHTML(r.media)}</div></div>`;
+    const isAns = t.kind === "question" && t.answerId === r.id;
+    const canAns = t.kind === "question" && !isAns && (mine || S.isOwner) && S.db && r.seat !== t.seat;
+    return `<div class="reply${isAns ? " is-answer" : ""}">${medal(s, 34)}<div>${isAns ? `<span class="ans-tag">✓ Answer</span>` : ""}<div class="reply-h"><b>${esc(seatName(s))}</b>${canAns ? `<button class="ans-btn" data-answer="${esc(r.id)}">✓ This answers it</button>` : ""}${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${ago(r.at)}</span>${own ? `<button class="del" data-del-reply="${esc(r.docId)}|${esc(r.id)}">Delete</button>` : ""}</div>${r.text ? `<div class="reply-t">${rich(r.text)}</div>` : ""}${mediaHTML(r.media)}</div></div>`;
   }).join("");
   const P = S.roster.projects || [], st = stepsOf(t), pr = progress(t), can = canPost();
-  const plan = `<div class="d-plan">
+  const planOpen = !!(S.planOpen && S.planOpen[t.id]);
+  const pj = projOf(t.project), ow = seatById(t.owner), dueI = t.due ? dueInfo(t.due, topicDone(t)) : null;
+  const sumBits = [pj ? esc(pj.name) : "", ow ? esc(seatName(ow)) : "", dueI ? esc(dueI.txt) : "", pr ? `${pr.done}/${pr.all} steps` : ""].filter(Boolean);
+  const planBar = `<button type="button" class="plan-tog${planOpen ? " on" : ""}" data-plan-toggle="${esc(t.id)}" aria-expanded="${planOpen}"><span class="pt-k">${planOpen ? "−" : "+"}</span><span class="pt-t">${sumBits.length ? sumBits.join(" · ") : "Plan it: project, owner, due date, steps"}</span>${pr ? `<span class="pt-bar"><i style="width:${Math.round(100 * pr.done / pr.all)}%"></i></span>` : ""}<span class="pt-o">${planOpen ? "Hide" : "Optional"}</span></button>`;
+  const plan = !planOpen ? planBar : planBar + `<div class="d-plan">
     <div class="plan-row">
       <label class="fld"><span>Project</span><select data-plan="project" ${can ? "" : "disabled"}><option value="">No project</option>${P.map(p => `<option value="${esc(p.id)}" ${t.project === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label>
       <label class="fld"><span>Owner</span><select data-plan="owner" ${can ? "" : "disabled"}><option value="">Nobody yet</option>${seats().map(x => `<option value="${esc(x.id)}" ${t.owner === x.id ? "selected" : ""}>${esc(seatName(x))}</option>`).join("")}</select></label>
@@ -2439,14 +2598,15 @@ function renderDrawer(){
   </div>`;
   const body = $("#d-body");
   const ae = document.activeElement, keepF = ae && body.contains(ae) && ae.id ? {id:ae.id, s:ae.selectionStart, e:ae.selectionEnd} : null;
-  const keepV = {}; ["step-text", "step-seat", "step-due"].forEach(id => { const x = document.getElementById(id); if (x) keepV[id] = x.value; });
+  const keepV = {}; ["step-text", "step-seat", "step-due", "ed-title", "ed-body"].forEach(id => { const x = document.getElementById(id); if (x) keepV[id] = x.value; });
   const keep = body.scrollTop, atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
-  body.innerHTML = `${t.no ? `<span class="d-no" aria-hidden="true">${pad2(t.no)}</span>` : ""}<h2 class="d-title">${esc(t.title)}</h2>
+  const editing = S.editId === t.id && canMod;
+  body.innerHTML = `${t.no ? `<span class="d-no" aria-hidden="true">${pad2(t.no)}</span>` : ""}${editing ? `<form class="ed-form" id="ed-form" autocomplete="off"><label class="fld"><span>Title</span><input id="ed-title" maxlength="140" required value="${esc(t.title)}"></label><label class="fld"><span>Text</span><textarea id="ed-body" rows="7" maxlength="4000">${esc(t.body || "")}</textarea></label><div class="ed-row"><button type="button" class="btn ghost sm" data-act="edit-cancel">Cancel</button><button type="submit" class="btn primary sm">Save changes</button></div></form>` : `<h2 class="d-title">${esc(t.title)}</h2>`}
     <div class="d-meta">${medal(author, 38)}<div class="who"><b>${esc(seatName(author))}</b><span>${esc(seatSub(author) || "")}${seatSub(author) ? " · " : ""}${dayLabel(t.at)}, ${clock(t.at)}</span></div>
     ${(t.to || []).length ? `<span class="spacer"></span><div class="to"><span class="tag-m">${k === "question" ? "Asking" : "For"}</span>${t.to.map(chipSeat).join("")}</div>` : ""}</div>
-    ${t.body ? `<div class="d-text">${rich(t.body)}</div>` : ""}${mediaHTML(t.media)}
+    ${!editing && t.body ? `<div class="d-text">${rich(t.body)}</div>` : ""}${t.editedAt && !editing ? `<div class="d-edited mono">Edited ${esc(dayLabel(t.editedAt))}, ${clock(t.editedAt)}</div>` : ""}${mediaHTML(t.media)}
     ${block}${plan}${reacts}
-    <div class="r-sep tag-m">${reps.length ? plural(reps.length, "reply", "replies") : "No replies yet"}</div>
+    <div class="r-sep tag-m">Comments${reps.length ? " · " + reps.length : ""}</div>${reps.length ? "" : `<div class="r-empty">No comments yet. Be the first to write one below.</div>`}
     ${repsHTML}`;
   Object.entries(keepV).forEach(([id, v]) => { const x = document.getElementById(id); if (x) x.value = v; });
   if (keepF){ const x = document.getElementById(keepF.id); if (x){ x.focus({preventScroll:true}); try { if (keepF.s != null) x.setSelectionRange(keepF.s, keepF.e); } catch (e){} } }
@@ -2454,26 +2614,46 @@ function renderDrawer(){
   if (S.stickDrawer || (atBottom && S.growDrawer)){ body.scrollTop = body.scrollHeight; } else body.scrollTop = keep;
   S.stickDrawer = false; S.growDrawer = false;
   const inp = $("#d-input"); inp.disabled = !canPost();
-  inp.placeholder = canPost() ? "Reply… (type @ to mention someone)" : (S.mySeat ? "You can't post right now" : "Pick your seat first");
+  inp.placeholder = canPost() ? "Write a comment… (type @ to mention someone)" : (S.mySeat ? "You can't post right now" : "Pick your seat first");
   S.seen.t[t.id] = Date.now(); saveSeen();
 }
 function openThread(id){
   if (S.openId !== id){ const di = $("#d-input"); di.value = ""; clearAtt("d"); di.dispatchEvent(new Event("input")); }
   S.openId = id; S.stickDrawer = false;
-  const d = $("#drawer"); d.classList.add("open"); d.setAttribute("aria-hidden", "false");
-  $("#scrim").classList.add("on");
+  const d = $("#drawer");
+  if (S.view !== "topics") go("topics");
+  d.classList.add("inline", "open"); d.setAttribute("aria-hidden", "false");
+  document.querySelectorAll("#board .card.is-open").forEach(c => c.classList.remove("is-open"));
+  placeDrawer();
   $("#d-body").scrollTop = 0;
   renderDrawer(); schedule();
+  requestAnimationFrame(() => d.scrollIntoView({behavior:"smooth", block:"start"}));
   setPresence({view:"t:" + id});
   setTimeout(() => { if (window.matchMedia("(min-width: 861px)").matches && !$("#d-input").disabled) $("#d-input").focus({preventScroll:true}); else $("#d-head .icon-btn")?.focus({preventScroll:true}); }, 60);
 }
+/* the open file sits in the list in place of its card (or on top if the card is filtered out) */
+function placeDrawer(){
+  const d = $("#drawer"), board = $("#board"); if (!d || !board) return;
+  if (!S.openId || !d.classList.contains("inline")) return;
+  const card = board.querySelector(`.card[data-open="${CSS.escape(S.openId)}"]`);
+  if (card){ card.classList.add("is-open"); if (card.nextElementSibling !== d) card.after(d); }
+  else if (d.parentNode !== board.parentNode || d.nextElementSibling !== board) board.parentNode.insertBefore(d, board);
+}
+document.addEventListener("submit", e => {
+  if (!e.target || e.target.id !== "ed-form") return;
+  e.preventDefault();
+  const t = S.threads.find(x => x.id === S.editId); if (!t) return;
+  const title = $("#ed-title").value.trim(); if (!title) return;
+  updateThread(t.id, {title:title.slice(0, 140), body:$("#ed-body").value.trim().slice(0, 4000), editedAt:Date.now(), editedBy:S.mySeat});
+  S.editId = null; toast("Post updated"); schedule();
+});
 function closeDrawer(){
   const last = S.openId;
-  S.openId = null;
+  S.openId = null; S.editId = null;
   const d = $("#drawer"); d.classList.remove("open"); d.setAttribute("aria-hidden", "true");
   $("#scrim").classList.remove("on");
   setPresence({view:S.view});
-  if (last){ const c = document.querySelector(`[data-open="${CSS.escape(last)}"]`); c?.focus({preventScroll:true}); }
+  if (last){ const c = document.querySelector(`#board [data-open="${CSS.escape(last)}"]`) || document.querySelector(`[data-open="${CSS.escape(last)}"]`); if (c){ c.focus({preventScroll:true}); c.scrollIntoView({block:"center"}); } }
   schedule();
 }
 
@@ -2524,12 +2704,13 @@ async function claimSeat(sid){
   S.obStep = "name"; renderOnboard(); schedule();
   setTimeout(() => $("#ob-name").focus(), 40);
 }
-async function saveMe(name, color){
+async function saveMe(name, color, photo){
   const me = mySeatObj(); if (!me || !S.db) return false;
   name = String(name || "").trim().slice(0, 40);
-  const doc = {name, color:color && color !== me.color ? color : "", by:S.uid || null, at:Date.now()};
+  if (photo === undefined) photo = (own(me) || {}).photo || "";
+  const doc = {name, color:color && color !== me.color ? color : "", photo:photo || "", by:S.uid || null, at:Date.now()};
   try {
-    if (!doc.name && !doc.color){ if (own(me)) await S.db.doc("names/" + me.id).delete(); S.names.delete(me.id); }
+    if (!doc.name && !doc.color && !doc.photo){ if (own(me)) await S.db.doc("names/" + me.id).delete(); S.names.delete(me.id); }
     else { await S.db.doc("names/" + me.id).set(doc); S.names.set(me.id, {id:me.id, ...doc}); }
     schedule(); return true;
   } catch (e){ writeErr(e); return false; }
@@ -2543,6 +2724,7 @@ function renderMe(){
 function openMe(){
   const me = mySeatObj();
   if (!me){ S.forceOnboard = true; renderOnboard(); return; }
+  document.body.classList.remove("rail-open"); go("profile"); return;
   S.meColor = colorOf(me);
   $("#me-name").value = (own(me)?.name || me.name || "").trim();
   renderMe();
@@ -2551,6 +2733,54 @@ function openMe(){
   setTimeout(() => $("#me-name").focus(), 30);
 }
 function closeMe(){ $("#me-modal").hidden = true; schedule(); }
+
+/* ---------- my profile: photo, name, colour, seat, and what I've put on the board ---------- */
+function renderProfile(){
+  const box = $("#profile-in"); if (!box) return;
+  const me = mySeatObj();
+  if (!me){ box.innerHTML = `<div class="ac-empty">Pick your seat first.</div>`; return; }
+  if (!S.pf || S.pf.seat !== me.id) S.pf = {seat:me.id, name:(own(me)?.name || me.name || "").trim(), color:colorOf(me), photo:(own(me) || {}).photo || "", dirty:false};
+  const P = S.pf, ae = document.activeElement, keepName = ae && ae.id === "pf-name";
+  const posts = S.threads.filter(t => t.seat === me.id).sort((a, b) => b.at - a.at);
+  let comments = 0; for (const arr of S.idx.replies.values()) comments += arr.filter(r => r.seat === me.id).length;
+  const needs = [...S.needs.values()].filter(n => n.seat === me.id).length;
+  const c = cup(P.color);
+  box.innerHTML = `<div class="pf-hero" style="--pc:${c.c}">
+      <div class="pf-av">${medal(me, 132, {color:P.color, photo:P.photo, glow:true})}<label class="pf-cam" title="Change photo">${I.camera}<input type="file" id="pf-file" accept="image/*"></label></div>
+      <div class="pf-id"><div class="kick"><span>My profile</span></div><h1>${esc(P.name || seatName(me))}</h1><p>${esc(me.role || "Member")}${me.decider ? " · Final say" : ""}${me.admin ? " · Admin" : ""}</p>
+        <div class="pf-stats"><div><b>${posts.length}</b><span>Posts</span></div><div><b>${comments}</b><span>Comments</span></div><div><b>${needs}</b><span>Needs pinned</span></div></div></div>
+    </div>
+    <div class="pf-grid">
+      <section class="pf-card"><h2>Photo &amp; name</h2>
+        <div class="pf-photo">${P.photo ? `<button type="button" class="btn sm ghost" data-pf="nophoto">Remove photo</button>` : ""}<label class="btn sm">${P.photo ? "Change photo" : "Upload a photo"}<input type="file" id="pf-file2" accept="image/*" style="display:none"></label><span class="mono">Square photos look best. It shows next to everything you post.</span></div>
+        <label class="fld"><span>Your name</span><input id="pf-name" maxlength="40" value="${esc(P.name)}" placeholder="What should the team call you?"></label>
+        <div class="fld"><span>Your color</span><div class="swatches">${CUPS.map(e => `<button type="button" class="sw${P.color === e.id ? " on" : ""}" data-pfcolor="${e.id}" style="--c:${e.c}" title="${e.name}" aria-label="${e.name}" aria-pressed="${P.color === e.id}"></button>`).join("")}</div></div>
+        <div class="fld"><span>Your seat</span><div class="seat-line">${medal(me, 26, {color:P.color, photo:P.photo})}<span>${esc(me.role || "Member")}</span><span class="spacer"></span>${S.mySrc === "admin" ? '<span class="mono">Assigned by the admin</span>' : '<button type="button" class="btn sm" data-act="switch-seat">Change seat</button>'}</div></div>
+        <div class="pf-save"><button type="button" class="btn ghost sm" id="pf-signout">Sign out</button><span class="spacer"></span><button type="button" class="btn primary" data-pf="save" ${P.dirty ? "" : "disabled"}>${P.dirty ? "Save changes" : "Saved"}</button></div>
+      </section>
+      <section class="pf-card"><h2>My posts</h2>${posts.length ? `<div class="pf-posts">${posts.slice(0, 12).map(t => `<button type="button" class="pf-post" data-open="${esc(t.id)}" style="--kc:var(--k-${KINDS[t.kind] ? t.kind : "note"})"><span class="k">${esc(KINDS[t.kind] ? KINDS[t.kind].label : "Note")}${t.no ? " · " + topicNo(t) : ""}</span><b>${esc(t.title)}</b><span class="mono">${esc(dayLabel(t.at))} · ${plural(repliesFor(t.id).length, "comment", "comments")}</span></button>`).join("")}</div>` : `<p class="mono">Nothing yet. Your questions, ideas and notes will show here.</p>`}</section>
+    </div>`;
+  if (keepName){ const x = $("#pf-name"); x.focus(); x.setSelectionRange(x.value.length, x.value.length); }
+}
+async function pfPhoto(file){
+  if (!file || !/^image\//.test(file.type)) return;
+  try {
+    const bmp = await createImageBitmap(file, {imageOrientation:"from-image"});
+    const s = Math.min(bmp.width, bmp.height), c = document.createElement("canvas"); c.width = c.height = 256;
+    c.getContext("2d").drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, 256, 256);
+    S.pf.photo = c.toDataURL("image/jpeg", .85); S.pf.dirty = true; schedule();
+  } catch (e){ toast("That photo can't be read here. Try a JPG or PNG."); }
+}
+document.addEventListener("change", e => { if (e.target && (e.target.id === "pf-file" || e.target.id === "pf-file2")){ const fl = e.target.files && e.target.files[0]; e.target.value = ""; pfPhoto(fl); } });
+document.addEventListener("input", e => { if (e.target && e.target.id === "pf-name" && S.pf){ S.pf.name = e.target.value; if (!S.pf.dirty){ S.pf.dirty = true; schedule(); } } });
+function pfClick(q){
+  let el;
+  if ((el = q("[data-pfcolor]"))){ S.pf.color = el.dataset.pfcolor; S.pf.dirty = true; schedule(); return true; }
+  if ((el = q('[data-pf="nophoto"]'))){ S.pf.photo = ""; S.pf.dirty = true; schedule(); return true; }
+  if ((el = q('[data-pf="save"]'))){ const P = S.pf; saveMe(P.name, P.color, P.photo).then(ok => { if (ok){ P.dirty = false; toast("Saved. The team sees you as " + seatName(mySeatObj()).replace(/\.$/, "") + "."); schedule(); } }); return true; }
+  if ((el = q("#pf-signout"))){ $("#hq-signout")?.click(); return true; }
+  return false;
+}
 
 /* ---------- admin ---------- */
 function knownPeople(){
@@ -2815,8 +3045,8 @@ function go(view){
   if ((view === "admin" || view === "activity") && !S.isOwner) view = "topics";
   if (view === "admin" && S.view !== "admin"){ S.adminDraft = clone(S.roster); S.adminDirty = false; }
   S.view = view;
-  $("#v-topics").hidden = view !== "topics"; $("#v-chat").hidden = view !== "chat"; $("#v-admin").hidden = view !== "admin"; $("#v-needs").hidden = view !== "needs"; $("#v-activity").hidden = view !== "activity";
-  $("#mbar-title").textContent = view === "chat" ? ((o => o ? (o.dm ? o.name : "# " + o.name) : "Chat")(chanObj(S.channel))) : view === "admin" ? "Team settings" : view === "needs" ? "Needs" : view === "activity" ? "Activity" : "Main page";
+  $("#v-topics").hidden = view !== "topics"; $("#v-chat").hidden = view !== "chat"; $("#v-admin").hidden = view !== "admin"; $("#v-needs").hidden = view !== "needs"; $("#v-activity").hidden = view !== "activity"; $("#v-profile").hidden = view !== "profile";
+  $("#mbar-title").textContent = view === "chat" ? ((o => o ? (o.dm ? o.name : "# " + o.name) : "Chat")(chanObj(S.channel))) : view === "admin" ? "Team settings" : view === "needs" ? "Needs" : view === "activity" ? "Activity" : view === "profile" ? "My profile" : "Main page";
   document.body.classList.remove("rail-open");
   if (view === "chat"){ S.stickChat = true; }
   if (view === "admin") renderAdmin();
@@ -2836,6 +3066,7 @@ function renderAll(){
   if (S.view === "chat") renderChat();
   if (S.view === "needs") renderNeeds();
   if (S.view === "activity") renderActivity();
+  if (S.view === "profile") renderProfile();
   if (S.openId) renderDrawer();
   renderOnboard();
   renderCoach();
@@ -2855,7 +3086,7 @@ function renderTabbar(){
     ["needs", I.box, "Needs", needsOpen().filter(n => n.urgent).length, S.view === "needs" && !open],
     ["chat", I.chat, "Chat", chU, S.view === "chat" && !isDm && !open],
     ["dms", I.dms, "DMs", dmU, isDm || open],
-    ["me", me ? medal(me, 24) : I.user, "Me", 0, false],
+    ["me", me ? medal(me, 24) : I.user, "Me", 0, S.view === "profile" && !open],
   ].map(([k, ic, l, n, cur]) => `<button type="button" data-tab="${k}" aria-current="${cur}">${ic}<span>${l}</span>${n ? `<span class="badge">${n}</span>` : ""}</button>`).join("");
 }
 function renderCoach(){
@@ -2879,13 +3110,16 @@ document.addEventListener("click", e => {
     else if (k === "needs"){ document.body.classList.remove("rail-open"); go("needs"); }
     else if (k === "chat"){ document.body.classList.remove("rail-open"); S.channel = S.lastChan || (S.roster.channels[0] || {}).id || "general"; go("chat"); }
     else if (k === "dms"){ document.body.classList.toggle("rail-open"); if (document.body.classList.contains("rail-open")) setTimeout(() => $("#rail-seats").scrollIntoView({block:"start"}), 80); schedule(); }
-    else if (k === "me"){ coachDone(); openMe(); }
+    else if (k === "me"){ coachDone(); document.body.classList.remove("rail-open"); go("profile"); }
     return;
   }
   if ((el = q("[data-mecolor]"))){ S.meColor = el.dataset.mecolor; renderMe(); return; }
   if ((el = q("[data-close-me]"))){ closeMe(); return; }
   if ((el = q("[data-dock]"))){ const mine = myDock(); if (!(mine && mine.state === el.dataset.dock)) dock(el.dataset.dock); return; }
+  /* tapping the open post's header or title folds it back up */
+  if (S.openId && q("#drawer.inline") && (q("#drawer.inline .d-head") || q("#drawer.inline .d-title")) && !q("button, a, input, select, textarea, label")){ closeDrawer(); return; }
   if (ndClick(q)) return;
+  if (S.view === "profile" && pfClick(q)) return;
   if (acClick(q)) return;
   if ((el = q("[data-cu]"))){
     const k = el.dataset.cu;
@@ -2916,6 +3150,7 @@ document.addEventListener("click", e => {
   if ((el = q("[data-vote]"))){ const tid = S.openId; if (tid && canPost()) toggleVote(tid, +el.dataset.vote); return; }
   if ((el = q("[data-react]"))){ if (S.openId && canPost()) toggleReact(S.openId, el.dataset.react); return; }
   if ((el = q("[data-seal]"))){ if (S.openId) updateThread(S.openId, {status:"decided", decided:+el.dataset.seal, decidedBy:S.mySeat || null, decidedAt:Date.now(), statusAt:Date.now()}); return; }
+  if ((el = q("[data-answer]"))){ const t = S.threads.find(x => x.id === S.openId), id = el.dataset.answer; if (t) updateThread(t.id, id ? {status:"answered", answerId:id, statusAt:Date.now()} : {status:"open", answerId:null, statusAt:Date.now()}); return; }
   if ((el = q("[data-status]"))){ if (S.openId) updateThread(S.openId, {status:el.dataset.status, statusAt:Date.now()}); return; }
   if ((el = q("[data-instr]"))){
     const k = el.dataset.instr; const smooth = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
@@ -2925,6 +3160,7 @@ document.addEventListener("click", e => {
     $(".g-table").scrollIntoView({behavior:smooth, block:"start"});
     return;
   }
+  if ((el = q("[data-plan-toggle]"))){ S.planOpen = S.planOpen || {}; S.planOpen[el.dataset.planToggle] = !S.planOpen[el.dataset.planToggle]; schedule(); return; }
   if ((el = q("[data-step-toggle]"))){ track("step", ""); }
   if ((el = q("[data-step-toggle]"))){ const sid = el.closest("[data-step]").dataset.step; const th = S.threads.find(x => x.id === S.openId); if (th && canPost()) updateThread(th.id, {steps:stepsOf(th).map(x => x.id === sid ? {...x, done:!x.done, doneAt:Date.now()} : x)}); return; }
   if ((el = q("[data-step-del]"))){ armThen(el, () => { const sid = el.closest("[data-step]").dataset.step; const th = S.threads.find(x => x.id === S.openId); if (th) updateThread(th.id, {steps:stepsOf(th).filter(x => x.id !== sid)}); }); return; }
@@ -2936,6 +3172,8 @@ document.addEventListener("click", e => {
     if (a === "close-drawer") closeDrawer();
     else if (a === "dock-toggle"){ const mine = myDock(); dock(mine && mine.state === "office" ? "left" : "office"); }
     else if (a === "pin" && th) updateThread(th.id, {pinned:!th.pinned});
+    else if (a === "edit" && th){ S.editId = th.id; S.editAtt = null; schedule(); setTimeout(() => $("#ed-title")?.focus(), 40); }
+    else if (a === "edit-cancel"){ S.editId = null; schedule(); }
     else if (a === "unseal" && th) updateThread(th.id, {status:"open", decided:null, decidedBy:null});
     else if (a === "del-thread" && th) armThen(el, () => { closeDrawer(); deleteThread(th); }, "Confirm delete");
     else if (a === "settings"){ coachDone(); openMe(); }
@@ -3031,7 +3269,7 @@ $("#me-modal").addEventListener("click", e => { if (e.target.id === "me-modal") 
 $("#me-form").addEventListener("submit", async e => {
   e.preventDefault();
   const ok = await saveMe($("#me-name").value, S.meColor);
-  if (ok){ closeMe(); toast("Saved. The team sees you as " + seatName(mySeatObj()) + "."); }
+  if (ok){ closeMe(); toast("Saved. The team sees you as " + seatName(mySeatObj()).replace(/\.$/, "") + "."); }
 });
 $("#ob-name-form").addEventListener("submit", async e => {
   e.preventDefault();
@@ -3105,6 +3343,8 @@ async function connect(){
     S.db = db;
     db.doc("team/roster").onSnapshot(snap => {
       S.roster = snap.exists ? normalizeRoster(snap.data()) : clone(DEFAULT_ROSTER);
+      /* calmer palette: the two default projects move off pink and cyan */
+      (S.roster.projects || []).forEach(p => { if (p.id === "p-brand" && p.color === "pink") p.color = "sand"; if (p.id === "p-money" && p.color === "cyan") p.color = "steel"; });
       S.loaded.roster = true; computeIdentity();
       if (S.view === "admin" && !S.adminDirty){ S.adminDraft = clone(S.roster); renderAdmin(); }
       schedule();
@@ -3143,6 +3383,6 @@ derive(); renderAll();
 connect();
 })();
 </script>
-<script src="hq-wild.js?v=3" defer></script>
+<script src="hq-wild.js?v=4" defer></script>
 
 </body></html>
