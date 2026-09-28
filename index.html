@@ -2767,13 +2767,22 @@ function renderProfile(){
   if (keepName){ const x = $("#pf-name"); x.focus(); x.setSelectionRange(x.value.length, x.value.length); }
 }
 async function pfPhoto(file){
-  if (!file || !/^image\//.test(file.type)) return;
-  try {
-    const bmp = await createImageBitmap(file, {imageOrientation:"from-image"});
-    const s = Math.min(bmp.width, bmp.height), c = document.createElement("canvas"); c.width = c.height = 256;
-    c.getContext("2d").drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, 256, 256);
-    S.pf.photo = c.toDataURL("image/jpeg", .85); S.pf.dirty = true; schedule();
-  } catch (e){ toast("That photo can't be read here. Try a JPG or PNG."); }
+  if (!file) return;
+  toast("Saving your photo…");
+  const draw = src => { const w = src.width || src.naturalWidth, h = src.height || src.naturalHeight, s = Math.min(w, h), c = document.createElement("canvas"); c.width = c.height = 256; c.getContext("2d").drawImage(src, (w - s) / 2, (h - s) / 2, s, s, 0, 0, 256, 256); return c.toDataURL("image/jpeg", .85); };
+  let url = null;
+  try { url = draw(await createImageBitmap(file)); } catch (e){}
+  if (!url){
+    try {
+      const src = URL.createObjectURL(file);
+      url = await new Promise((res, rej) => { const im = new Image(); im.onload = () => { try { res(draw(im)); } catch (x){ rej(x); } URL.revokeObjectURL(src); }; im.onerror = rej; im.src = src; });
+    } catch (e){}
+  }
+  if (!url){ toast("That photo can't be read here. Try a JPG or PNG."); return; }
+  const P = S.pf; P.photo = url;
+  const ok = await saveMe(P.name, P.color, P.photo);
+  if (ok){ toast("Photo saved. The team sees it next to your name."); } else { P.dirty = true; }
+  schedule();
 }
 document.addEventListener("change", e => { if (e.target && (e.target.id === "pf-file" || e.target.id === "pf-file2")){ const fl = e.target.files && e.target.files[0]; e.target.value = ""; pfPhoto(fl); } });
 document.addEventListener("input", e => { if (e.target && e.target.id === "pf-name" && S.pf){ S.pf.name = e.target.value; if (!S.pf.dirty){ S.pf.dirty = true; schedule(); } } });
@@ -2781,7 +2790,7 @@ function pfClick(q){
   let el;
   if ((el = q("[data-pfcolor]"))){ S.pf.color = el.dataset.pfcolor; S.pf.dirty = true; schedule(); return true; }
   if ((el = q("[data-pfview]"))){ const d = el.dataset.pfview === "desk"; LS.set("deskView", d); location.reload(); return true; }
-  if ((el = q('[data-pf="nophoto"]'))){ S.pf.photo = ""; S.pf.dirty = true; schedule(); return true; }
+  if ((el = q('[data-pf="nophoto"]'))){ S.pf.photo = ""; saveMe(S.pf.name, S.pf.color, "").then(ok => { if (ok) toast("Photo removed"); schedule(); }); return true; }
   if ((el = q('[data-pf="save"]'))){ const P = S.pf; saveMe(P.name, P.color, P.photo).then(ok => { if (ok){ P.dirty = false; toast("Saved. The team sees you as " + seatName(mySeatObj()).replace(/\.$/, "") + "."); schedule(); } }); return true; }
   if ((el = q("#pf-signout"))){ $("#hq-signout")?.click(); return true; }
   return false;
