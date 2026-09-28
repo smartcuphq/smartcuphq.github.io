@@ -275,4 +275,12 @@ let deferred = null;
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("hq-install").hidden = false; });
 $("hq-install").addEventListener("click", async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice.catch(() => {}); deferred = null; $("hq-install").hidden = true; });
 window.addEventListener("appinstalled", () => { $("hq-install").hidden = true; });
-if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+/* offline cache; a new version takes over on its own and the page reloads once so everyone is on the latest */
+if ("serviceWorker" in navigator && location.protocol === "https:"){
+  const had = !!navigator.serviceWorker.controller; let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (had && !reloaded){ reloaded = true; location.reload(); } });
+  navigator.serviceWorker.register("sw.js", {updateViaCache:"none"}).then(reg => {
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
+    setInterval(() => reg.update().catch(() => {}), 30 * 60e3);
+  }).catch(() => {});
+}
