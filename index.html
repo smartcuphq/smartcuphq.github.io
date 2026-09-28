@@ -1727,6 +1727,7 @@ function lastAct(t){
   return l && l.at > t.at ? {at:l.at, mine:isMineBy(l.by, l.seat)} : {at:t.at || 0, mine:isMineBy(t.by, t.seat)};
 }
 function isUnread(t){ const la = lastAct(t); return !la.mine && la.at > Math.max(S.seen.t[t.id] || 0, S.seen.since || 0); }
+function chanUnreadRaw(ch){ const since = Math.max(S.seen.ch[ch] || 0, S.seen.since || 0); return (S.idx.chat.get(ch) || []).some(m => !m.bot && m.at > since && !isMineBy(m.by, m.seat)); }
 function chanUnread(ch){
   if (S.view === "chat" && S.channel === ch && document.visibilityState === "visible") return 0;
   const since = Math.max(S.seen.ch[ch] || 0, S.seen.since || 0);
@@ -2546,7 +2547,7 @@ function renderChat(){
   const typers = S.peers.filter(p => !p.isMe && p.presence && p.presence.typing === ch.id && typeof p.presence.seat === "string").map(p => seatById(p.presence.seat)).filter(Boolean);
   const uniq = [...new Map(typers.map(s => [s.id, s])).values()];
   $("#typing").__h = uniq.length ? `<i><b></b><b></b><b></b></i>${esc(uniq.map(s => seatName(s)).join(", "))} ${uniq.length > 1 ? "are" : "is"} typing…` : "";
-  if (document.visibilityState === "visible" && S.view === "chat"){ S.seen.ch[ch.id] = Date.now(); saveSeen(); }
+  if (document.visibilityState === "visible" && S.view === "chat"){ const was = chanUnreadRaw(ch.id); S.seen.ch[ch.id] = Date.now(); saveSeen(); if (was) schedule(); }
 }
 
 /* ---------- render: drawer ---------- */
@@ -2633,7 +2634,7 @@ function renderDrawer(){
   S.stickDrawer = false; S.growDrawer = false;
   const inp = $("#d-input"); inp.disabled = !canPost();
   inp.placeholder = canPost() ? "Write a comment… (type @ to mention someone)" : (S.mySeat ? "You can't post right now" : "Pick your seat first");
-  S.seen.t[t.id] = Date.now(); saveSeen();
+  { const was = isUnread(t); S.seen.t[t.id] = Date.now(); saveSeen(); if (was) schedule(); }
 }
 function openThread(id){
   if (S.openId !== id){ const di = $("#d-input"); di.value = ""; clearAtt("d"); di.dispatchEvent(new Event("input")); }
