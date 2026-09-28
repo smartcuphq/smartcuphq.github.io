@@ -411,6 +411,34 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
   .nd-col-h{display:none}
   .nd-grid{grid-template-columns:minmax(0,1fr)}
 }
+/* my profile */
+.medal.photo{background:var(--c) center/cover no-repeat;color:transparent}
+.pf{padding:34px clamp(16px,4vw,48px) 90px}
+.pf-hero{display:flex;align-items:center;gap:28px;flex-wrap:wrap;padding:26px;border:1px solid rgba(243,239,232,.14);background:radial-gradient(90% 140% at 0% 50%,color-mix(in srgb,var(--pc) 16%,transparent),transparent 60%),#0B0A10;margin-bottom:24px}
+.pf-av{position:relative;flex:none}
+.pf-av .medal{box-shadow:0 0 0 3px var(--void),0 0 0 5px var(--pc),0 0 40px -6px var(--pc);font-size:54px}
+.pf-cam{position:absolute;right:2px;bottom:2px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--cream);color:var(--void);cursor:pointer;box-shadow:0 0 0 3px var(--void)}
+.pf-cam svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.pf-cam input{position:absolute;width:1px;height:1px;opacity:0}
+.pf-id{min-width:0;flex:1}
+.pf-id h1{margin:6px 0 4px;font:800 clamp(34px,5vw,56px)/.95 var(--f-body);letter-spacing:-.04em;text-transform:uppercase;overflow-wrap:anywhere}
+.pf-id p{margin:0;color:var(--muted)}
+.pf-stats{display:flex;gap:26px;margin-top:16px}
+.pf-stats b{display:block;font:800 26px/1 var(--f-body);color:var(--pc)}
+.pf-stats span{font:600 9.5px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pf-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start}
+.pf-card{border:1px solid rgba(243,239,232,.14);background:#0B0A10;padding:18px 18px 16px}
+.pf-card h2{margin:0 0 14px;font:800 17px/1 var(--f-body);text-transform:uppercase;letter-spacing:-.01em}
+.pf-photo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.pf-photo .mono{flex-basis:100%}
+.pf-save{display:flex;align-items:center;gap:10px;margin-top:6px}
+.pf-posts{display:flex;flex-direction:column}
+.pf-post{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:3px;padding:10px 0 10px 12px;border-bottom:1px solid rgba(243,239,232,.08);position:relative}
+.pf-post::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;background:var(--kc)}
+.pf-post .k{font:600 9.5px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--kc)}
+.pf-post b{font-size:15px}
+.pf-post:hover b{color:#fff}
+@media (max-width:900px){.pf-grid{grid-template-columns:minmax(0,1fr)}.pf-hero{padding:18px;gap:18px}.pf-av .medal{--s:96px!important;font-size:40px}}
 /* activity: admin only */
 .ac{padding:34px clamp(16px,4vw,48px) 90px}
 .ac .hero h1 span{color:transparent;-webkit-text-stroke:1.3px var(--cream)}
@@ -712,6 +740,16 @@ button.opt:disabled{cursor:default}
 .card-media .more{position:absolute;right:12px;bottom:12px;padding:5px 10px;background:rgba(4,3,8,.8);border:1px solid var(--line-3);font:700 12px/1 var(--f-mono);color:var(--cream)}
 .card-band + .card-media{margin-top:-8px}
 .board.list .card-media{display:none}
+#drawer.inline .d-head,#drawer.inline .d-title{cursor:pointer}
+#drawer.inline .d-head .spacer{display:flex;justify-content:center;align-self:stretch;align-items:center}
+#drawer.inline .d-head .spacer::before{content:"▴ Tap to close";font:600 9px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#drawer.inline .d-head:hover .spacer::before{color:var(--text)}
+@media (max-width:640px){#drawer.inline .d-head .spacer::before{content:"▴ Close"}}
+/* the accepted answer */
+.reply.is-answer{background:rgba(198,255,61,.05);box-shadow:inset 3px 0 0 var(--lime)}
+.ans-tag{display:inline-block;margin-bottom:4px;padding:2px 7px;background:var(--lime);color:var(--void);font:800 9.5px/1.3 var(--f-mono);letter-spacing:.1em;text-transform:uppercase}
+.ans-btn{margin-left:auto;background:none;border:1px solid rgba(198,255,61,.5);color:var(--lime);font:700 9.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;cursor:pointer}
+.ans-btn:hover{background:var(--lime);color:var(--void)}
 /* editing a post, and the comments section */
 .ed-form{display:flex;flex-direction:column;gap:4px;margin:0 0 18px;padding:14px;border:1px solid var(--amber);background:rgba(240,168,60,.05)}
 .ed-form input,.ed-form textarea{font-size:16px}
@@ -1181,6 +1219,9 @@ button.opt:disabled{cursor:default}
       </div>
     </section>
 
+    <section class="view" id="v-profile" hidden aria-label="My profile">
+      <div class="scroll" id="profile-scroll"><div class="pf"><div class="wrap" id="profile-in"></div></div></div>
+    </section>
     <section class="view" id="v-activity" hidden aria-label="Activity">
       <div class="scroll" id="activity-scroll"><div class="ac"><div class="wrap" id="activity-in"></div></div></div>
     </section>
@@ -1328,6 +1369,7 @@ const I = {
   close:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   edit:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
   box:'<svg viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>',
+  camera:'<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
   pulse:'<svg viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>',
   clip:'<svg viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.2-8.2a3.3 3.3 0 0 1 4.7 4.7l-8.2 8.2a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/></svg>',
   play:'<svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg>',
@@ -1492,7 +1534,8 @@ function seatSub(seat){ return seat && seatName(seat) !== ((seat.role || "").tri
 function initial(seat){ const src = (seatName(seat) || "?"); return Array.from(src)[0].toUpperCase(); }
 function medal(seat, size=30, opt={}){
   if (!seat) return `<span class="medal ghost" style="--s:${size}px" aria-hidden="true"></span>`;
-  const e = cup(opt.color || colorOf(seat));
+  const e = cup(opt.color || colorOf(seat)), ph = opt.photo !== undefined ? opt.photo : (own(seat) || {}).photo;
+  if (ph) return `<span class="medal photo${opt.glow ? " glow" : ""}${opt.dim ? " dimmed" : ""}" style="--s:${size}px;--c:${e.c};--cf:${e.f};background-image:url('${esc(ph)}')" aria-hidden="true"></span>`;
   return `<span class="medal${opt.glow ? " glow" : ""}${opt.dim ? " dimmed" : ""}" style="--s:${size}px;--c:${e.c};--cf:${e.f}" aria-hidden="true">${esc(initial(seat))}</span>`;
 }
 function chipSeat(id){ const s = seatById(id); return s ? `<span class="chip-seat">${medal(s,18)}${esc(seatName(s))}</span>` : ""; }
@@ -1747,7 +1790,7 @@ function renderRail(){
   let foot = "";
   if (me){
     foot += `<div class="me">${medal(me, 36, {glow:true})}<div class="seat-meta"><b>${esc(seatName(me))}</b><span class="seat-role">${esc(me.role || "")}</span></div></div>`;
-    foot += `<button class="dock-quick" data-act="settings"><span class="sq"></span>My settings<small>Name · color · seat</small></button>`;
+    foot += `<button class="dock-quick" data-view="profile" aria-current="${S.view === "profile"}"><span class="sq"></span>My profile<small>Photo · name · color</small></button>`;
   } else if (!S.offline && !S.readOnly && S.loaded.roster){
     foot += `<button class="btn primary" data-act="switch-seat">Pick your seat</button>`;
   }
@@ -2477,10 +2520,11 @@ function renderDrawer(){
         ? `<div class="row"><button class="btn sm" data-act="unseal">Undo decision</button></div>`
         : `<div class="row"><span class="tag-m">Make the call</span>${(t.options || []).map((o, i) => `<button class="btn sm" data-seal="${i}">${esc(o)}</button>`).join("")}</div>`) : ""}
     </div>`;
-  } else if (k === "question" && (mine || S.isOwner) && S.db){
-    block = `<div class="d-block"><div class="row">${t.status === "answered"
-      ? `<span>Answer received.</span><span class="spacer"></span><button class="btn sm" data-status="open">Reopen</button>`
-      : `<span>Got your answer?</span><span class="spacer"></span><button class="btn sm primary" data-status="answered">Mark answered</button>`}</div></div>`;
+  } else if (k === "question"){
+    const ans = t.answerId ? repliesFor(t.id).find(r => r.id === t.answerId) : null, aby = ans ? seatById(ans.seat) : null;
+    block = `<div class="d-block q-block"><div class="row">${t.status === "answered"
+      ? `<span>✓ Answered${aby ? ` by <b>${esc(seatName(aby))}</b>` : ""}.</span><span class="spacer"></span>${(mine || S.isOwner) && S.db ? `<button class="btn sm" data-answer="">Reopen</button>` : ""}`
+      : `<span>${mine ? "When a comment answers your question, tap <b>✓ This answers it</b> on it." : "Know the answer? Write it as a comment below."}</span>`}</div></div>`;
   } else if (k === "idea" && isDecider() && S.db){
     const st = t.status || "new";
     block = `<div class="d-block"><div class="row"><span class="tag-m">What happens next</span><span class="spacer"></span>
@@ -2498,7 +2542,9 @@ function renderDrawer(){
   const repsHTML = reps.map(r => {
     const s = seatById(r.seat);
     const own = isMineBy(r.by, r.seat) && r.docId.endsWith("__" + myKey());
-    return `<div class="reply">${medal(s, 34)}<div><div class="reply-h"><b>${esc(seatName(s))}</b>${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${ago(r.at)}</span>${own ? `<button class="del" data-del-reply="${esc(r.docId)}|${esc(r.id)}">Delete</button>` : ""}</div>${r.text ? `<div class="reply-t">${rich(r.text)}</div>` : ""}${mediaHTML(r.media)}</div></div>`;
+    const isAns = t.kind === "question" && t.answerId === r.id;
+    const canAns = t.kind === "question" && !isAns && (mine || S.isOwner) && S.db && r.seat !== t.seat;
+    return `<div class="reply${isAns ? " is-answer" : ""}">${medal(s, 34)}<div>${isAns ? `<span class="ans-tag">✓ Answer</span>` : ""}<div class="reply-h"><b>${esc(seatName(s))}</b>${canAns ? `<button class="ans-btn" data-answer="${esc(r.id)}">✓ This answers it</button>` : ""}${seatSub(s) ? `<span class="role">${esc(seatSub(s))}</span>` : ""}<span class="mono">${ago(r.at)}</span>${own ? `<button class="del" data-del-reply="${esc(r.docId)}|${esc(r.id)}">Delete</button>` : ""}</div>${r.text ? `<div class="reply-t">${rich(r.text)}</div>` : ""}${mediaHTML(r.media)}</div></div>`;
   }).join("");
   const P = S.roster.projects || [], st = stepsOf(t), pr = progress(t), can = canPost();
   const planOpen = !!(S.planOpen && S.planOpen[t.id]);
@@ -2623,12 +2669,13 @@ async function claimSeat(sid){
   S.obStep = "name"; renderOnboard(); schedule();
   setTimeout(() => $("#ob-name").focus(), 40);
 }
-async function saveMe(name, color){
+async function saveMe(name, color, photo){
   const me = mySeatObj(); if (!me || !S.db) return false;
   name = String(name || "").trim().slice(0, 40);
-  const doc = {name, color:color && color !== me.color ? color : "", by:S.uid || null, at:Date.now()};
+  if (photo === undefined) photo = (own(me) || {}).photo || "";
+  const doc = {name, color:color && color !== me.color ? color : "", photo:photo || "", by:S.uid || null, at:Date.now()};
   try {
-    if (!doc.name && !doc.color){ if (own(me)) await S.db.doc("names/" + me.id).delete(); S.names.delete(me.id); }
+    if (!doc.name && !doc.color && !doc.photo){ if (own(me)) await S.db.doc("names/" + me.id).delete(); S.names.delete(me.id); }
     else { await S.db.doc("names/" + me.id).set(doc); S.names.set(me.id, {id:me.id, ...doc}); }
     schedule(); return true;
   } catch (e){ writeErr(e); return false; }
@@ -2642,6 +2689,7 @@ function renderMe(){
 function openMe(){
   const me = mySeatObj();
   if (!me){ S.forceOnboard = true; renderOnboard(); return; }
+  document.body.classList.remove("rail-open"); go("profile"); return;
   S.meColor = colorOf(me);
   $("#me-name").value = (own(me)?.name || me.name || "").trim();
   renderMe();
@@ -2650,6 +2698,54 @@ function openMe(){
   setTimeout(() => $("#me-name").focus(), 30);
 }
 function closeMe(){ $("#me-modal").hidden = true; schedule(); }
+
+/* ---------- my profile: photo, name, colour, seat, and what I've put on the board ---------- */
+function renderProfile(){
+  const box = $("#profile-in"); if (!box) return;
+  const me = mySeatObj();
+  if (!me){ box.innerHTML = `<div class="ac-empty">Pick your seat first.</div>`; return; }
+  if (!S.pf || S.pf.seat !== me.id) S.pf = {seat:me.id, name:(own(me)?.name || me.name || "").trim(), color:colorOf(me), photo:(own(me) || {}).photo || "", dirty:false};
+  const P = S.pf, ae = document.activeElement, keepName = ae && ae.id === "pf-name";
+  const posts = S.threads.filter(t => t.seat === me.id).sort((a, b) => b.at - a.at);
+  let comments = 0; for (const arr of S.idx.replies.values()) comments += arr.filter(r => r.seat === me.id).length;
+  const needs = [...S.needs.values()].filter(n => n.seat === me.id).length;
+  const c = cup(P.color);
+  box.innerHTML = `<div class="pf-hero" style="--pc:${c.c}">
+      <div class="pf-av">${medal(me, 132, {color:P.color, photo:P.photo, glow:true})}<label class="pf-cam" title="Change photo">${I.camera}<input type="file" id="pf-file" accept="image/*"></label></div>
+      <div class="pf-id"><div class="kick"><span>My profile</span></div><h1>${esc(P.name || seatName(me))}</h1><p>${esc(me.role || "Member")}${me.decider ? " · Final say" : ""}${me.admin ? " · Admin" : ""}</p>
+        <div class="pf-stats"><div><b>${posts.length}</b><span>Posts</span></div><div><b>${comments}</b><span>Comments</span></div><div><b>${needs}</b><span>Needs pinned</span></div></div></div>
+    </div>
+    <div class="pf-grid">
+      <section class="pf-card"><h2>Photo &amp; name</h2>
+        <div class="pf-photo">${P.photo ? `<button type="button" class="btn sm ghost" data-pf="nophoto">Remove photo</button>` : ""}<label class="btn sm">${P.photo ? "Change photo" : "Upload a photo"}<input type="file" id="pf-file2" accept="image/*" style="display:none"></label><span class="mono">Square photos look best. It shows next to everything you post.</span></div>
+        <label class="fld"><span>Your name</span><input id="pf-name" maxlength="40" value="${esc(P.name)}" placeholder="What should the team call you?"></label>
+        <div class="fld"><span>Your color</span><div class="swatches">${CUPS.map(e => `<button type="button" class="sw${P.color === e.id ? " on" : ""}" data-pfcolor="${e.id}" style="--c:${e.c}" title="${e.name}" aria-label="${e.name}" aria-pressed="${P.color === e.id}"></button>`).join("")}</div></div>
+        <div class="fld"><span>Your seat</span><div class="seat-line">${medal(me, 26, {color:P.color, photo:P.photo})}<span>${esc(me.role || "Member")}</span><span class="spacer"></span>${S.mySrc === "admin" ? '<span class="mono">Assigned by the admin</span>' : '<button type="button" class="btn sm" data-act="switch-seat">Change seat</button>'}</div></div>
+        <div class="pf-save"><button type="button" class="btn ghost sm" id="pf-signout">Sign out</button><span class="spacer"></span><button type="button" class="btn primary" data-pf="save" ${P.dirty ? "" : "disabled"}>${P.dirty ? "Save changes" : "Saved"}</button></div>
+      </section>
+      <section class="pf-card"><h2>My posts</h2>${posts.length ? `<div class="pf-posts">${posts.slice(0, 12).map(t => `<button type="button" class="pf-post" data-open="${esc(t.id)}" style="--kc:var(--k-${KINDS[t.kind] ? t.kind : "note"})"><span class="k">${esc(KINDS[t.kind] ? KINDS[t.kind].label : "Note")}${t.no ? " · " + topicNo(t) : ""}</span><b>${esc(t.title)}</b><span class="mono">${esc(dayLabel(t.at))} · ${plural(repliesFor(t.id).length, "comment", "comments")}</span></button>`).join("")}</div>` : `<p class="mono">Nothing yet. Your questions, ideas and notes will show here.</p>`}</section>
+    </div>`;
+  if (keepName){ const x = $("#pf-name"); x.focus(); x.setSelectionRange(x.value.length, x.value.length); }
+}
+async function pfPhoto(file){
+  if (!file || !/^image\//.test(file.type)) return;
+  try {
+    const bmp = await createImageBitmap(file, {imageOrientation:"from-image"});
+    const s = Math.min(bmp.width, bmp.height), c = document.createElement("canvas"); c.width = c.height = 256;
+    c.getContext("2d").drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, 256, 256);
+    S.pf.photo = c.toDataURL("image/jpeg", .85); S.pf.dirty = true; schedule();
+  } catch (e){ toast("That photo can't be read here. Try a JPG or PNG."); }
+}
+document.addEventListener("change", e => { if (e.target && (e.target.id === "pf-file" || e.target.id === "pf-file2")){ const fl = e.target.files && e.target.files[0]; e.target.value = ""; pfPhoto(fl); } });
+document.addEventListener("input", e => { if (e.target && e.target.id === "pf-name" && S.pf){ S.pf.name = e.target.value; if (!S.pf.dirty){ S.pf.dirty = true; schedule(); } } });
+function pfClick(q){
+  let el;
+  if ((el = q("[data-pfcolor]"))){ S.pf.color = el.dataset.pfcolor; S.pf.dirty = true; schedule(); return true; }
+  if ((el = q('[data-pf="nophoto"]'))){ S.pf.photo = ""; S.pf.dirty = true; schedule(); return true; }
+  if ((el = q('[data-pf="save"]'))){ const P = S.pf; saveMe(P.name, P.color, P.photo).then(ok => { if (ok){ P.dirty = false; toast("Saved. The team sees you as " + seatName(mySeatObj()).replace(/\.$/, "") + "."); schedule(); } }); return true; }
+  if ((el = q("#pf-signout"))){ $("#hq-signout")?.click(); return true; }
+  return false;
+}
 
 /* ---------- admin ---------- */
 function knownPeople(){
@@ -2914,8 +3010,8 @@ function go(view){
   if ((view === "admin" || view === "activity") && !S.isOwner) view = "topics";
   if (view === "admin" && S.view !== "admin"){ S.adminDraft = clone(S.roster); S.adminDirty = false; }
   S.view = view;
-  $("#v-topics").hidden = view !== "topics"; $("#v-chat").hidden = view !== "chat"; $("#v-admin").hidden = view !== "admin"; $("#v-needs").hidden = view !== "needs"; $("#v-activity").hidden = view !== "activity";
-  $("#mbar-title").textContent = view === "chat" ? ((o => o ? (o.dm ? o.name : "# " + o.name) : "Chat")(chanObj(S.channel))) : view === "admin" ? "Team settings" : view === "needs" ? "Needs" : view === "activity" ? "Activity" : "Main page";
+  $("#v-topics").hidden = view !== "topics"; $("#v-chat").hidden = view !== "chat"; $("#v-admin").hidden = view !== "admin"; $("#v-needs").hidden = view !== "needs"; $("#v-activity").hidden = view !== "activity"; $("#v-profile").hidden = view !== "profile";
+  $("#mbar-title").textContent = view === "chat" ? ((o => o ? (o.dm ? o.name : "# " + o.name) : "Chat")(chanObj(S.channel))) : view === "admin" ? "Team settings" : view === "needs" ? "Needs" : view === "activity" ? "Activity" : view === "profile" ? "My profile" : "Main page";
   document.body.classList.remove("rail-open");
   if (view === "chat"){ S.stickChat = true; }
   if (view === "admin") renderAdmin();
@@ -2935,6 +3031,7 @@ function renderAll(){
   if (S.view === "chat") renderChat();
   if (S.view === "needs") renderNeeds();
   if (S.view === "activity") renderActivity();
+  if (S.view === "profile") renderProfile();
   if (S.openId) renderDrawer();
   renderOnboard();
   renderCoach();
@@ -2954,7 +3051,7 @@ function renderTabbar(){
     ["needs", I.box, "Needs", needsOpen().filter(n => n.urgent).length, S.view === "needs" && !open],
     ["chat", I.chat, "Chat", chU, S.view === "chat" && !isDm && !open],
     ["dms", I.dms, "DMs", dmU, isDm || open],
-    ["me", me ? medal(me, 24) : I.user, "Me", 0, false],
+    ["me", me ? medal(me, 24) : I.user, "Me", 0, S.view === "profile" && !open],
   ].map(([k, ic, l, n, cur]) => `<button type="button" data-tab="${k}" aria-current="${cur}">${ic}<span>${l}</span>${n ? `<span class="badge">${n}</span>` : ""}</button>`).join("");
 }
 function renderCoach(){
@@ -2978,13 +3075,16 @@ document.addEventListener("click", e => {
     else if (k === "needs"){ document.body.classList.remove("rail-open"); go("needs"); }
     else if (k === "chat"){ document.body.classList.remove("rail-open"); S.channel = S.lastChan || (S.roster.channels[0] || {}).id || "general"; go("chat"); }
     else if (k === "dms"){ document.body.classList.toggle("rail-open"); if (document.body.classList.contains("rail-open")) setTimeout(() => $("#rail-seats").scrollIntoView({block:"start"}), 80); schedule(); }
-    else if (k === "me"){ coachDone(); openMe(); }
+    else if (k === "me"){ coachDone(); document.body.classList.remove("rail-open"); go("profile"); }
     return;
   }
   if ((el = q("[data-mecolor]"))){ S.meColor = el.dataset.mecolor; renderMe(); return; }
   if ((el = q("[data-close-me]"))){ closeMe(); return; }
   if ((el = q("[data-dock]"))){ const mine = myDock(); if (!(mine && mine.state === el.dataset.dock)) dock(el.dataset.dock); return; }
+  /* tapping the open post's header or title folds it back up */
+  if (S.openId && q("#drawer.inline") && (q("#drawer.inline .d-head") || q("#drawer.inline .d-title")) && !q("button, a, input, select, textarea, label")){ closeDrawer(); return; }
   if (ndClick(q)) return;
+  if (S.view === "profile" && pfClick(q)) return;
   if (acClick(q)) return;
   if ((el = q("[data-cu]"))){
     const k = el.dataset.cu;
@@ -3015,6 +3115,7 @@ document.addEventListener("click", e => {
   if ((el = q("[data-vote]"))){ const tid = S.openId; if (tid && canPost()) toggleVote(tid, +el.dataset.vote); return; }
   if ((el = q("[data-react]"))){ if (S.openId && canPost()) toggleReact(S.openId, el.dataset.react); return; }
   if ((el = q("[data-seal]"))){ if (S.openId) updateThread(S.openId, {status:"decided", decided:+el.dataset.seal, decidedBy:S.mySeat || null, decidedAt:Date.now(), statusAt:Date.now()}); return; }
+  if ((el = q("[data-answer]"))){ const t = S.threads.find(x => x.id === S.openId), id = el.dataset.answer; if (t) updateThread(t.id, id ? {status:"answered", answerId:id, statusAt:Date.now()} : {status:"open", answerId:null, statusAt:Date.now()}); return; }
   if ((el = q("[data-status]"))){ if (S.openId) updateThread(S.openId, {status:el.dataset.status, statusAt:Date.now()}); return; }
   if ((el = q("[data-instr]"))){
     const k = el.dataset.instr; const smooth = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
@@ -3133,7 +3234,7 @@ $("#me-modal").addEventListener("click", e => { if (e.target.id === "me-modal") 
 $("#me-form").addEventListener("submit", async e => {
   e.preventDefault();
   const ok = await saveMe($("#me-name").value, S.meColor);
-  if (ok){ closeMe(); toast("Saved. The team sees you as " + seatName(mySeatObj()) + "."); }
+  if (ok){ closeMe(); toast("Saved. The team sees you as " + seatName(mySeatObj()).replace(/\.$/, "") + "."); }
 });
 $("#ob-name-form").addEventListener("submit", async e => {
   e.preventDefault();

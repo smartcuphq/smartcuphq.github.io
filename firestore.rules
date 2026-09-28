@@ -20,12 +20,33 @@ service cloud.firestore {
     match /claims/{uid} { allow read: if team(); allow write: if team() && (request.auth.uid == uid || admin()); }
     match /people/{uid} { allow read: if team(); allow write: if team() && request.auth.uid == uid; }
     match /presence/{uid} { allow read: if team(); allow write: if team() && request.auth.uid == uid; }
-    match /threads/{id} { allow read, write: if team(); }
-    match /replies/{id} { allow read, write: if team(); }
-    match /chat/{id} { allow read, write: if team(); }
+    function mine(){ return resource.data.by == request.auth.uid; }
+    function mineOrOld(){ return !('by' in resource.data) || resource.data.by == null || resource.data.by == request.auth.uid; }
+    // posts: anyone can plan, vote on and move a post along; only its author (or the admin) edits or deletes it
+    match /threads/{id} {
+      allow read: if team();
+      allow create: if team() && request.resource.data.by == request.auth.uid;
+      allow delete: if admin() || (team() && mine());
+      allow update: if admin() || (team() && mine())
+        || (team() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['steps', 'status', 'statusAt', 'decided', 'decidedBy', 'decidedAt', 'answerId', 'project', 'owner', 'due']));
+    }
+    // comments and chat: each person's own messages, only they (or the admin) change them
+    match /replies/{id} {
+      allow read: if team();
+      allow create: if team() && request.resource.data.by == request.auth.uid;
+      allow update, delete: if admin() || (team() && mine());
+    }
+    match /chat/{id} {
+      allow read: if team();
+      allow create: if team() && request.resource.data.by == request.auth.uid;
+      allow update, delete: if admin() || (team() && mine());
+    }
     match /marks/{id} { allow read, write: if team(); }
     match /checkins/{id} { allow read, write: if team(); }
-    match /names/{id} { allow read, write: if team(); }
+    match /names/{id} {
+      allow read, create: if team();
+      allow update, delete: if admin() || (team() && mineOrOld());
+    }
     match /needs/{id} { allow read, write: if team(); }
     match /activity/{id} {
       allow read: if admin();
