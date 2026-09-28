@@ -1188,7 +1188,11 @@ button.opt:disabled{cursor:default}
 .ptag{font:700 9px/1.4 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--pc);color:var(--pc);white-space:nowrap}
 .due{font:700 9px/1.4 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--line-2);color:var(--muted);white-space:nowrap}
 .due.soon{border-color:var(--amber);color:var(--amber)}
-.due.late{border-color:var(--red);color:var(--void);background:var(--red)}
+.due.past{color:var(--muted)}
+.due-in{display:flex;gap:6px;align-items:stretch}
+.due-in input{flex:1;min-width:0}
+.due-x{flex:0 0 38px;border:1px solid var(--line-2);background:transparent;color:var(--muted);cursor:pointer;font-size:13px}
+.due-x:hover{border-color:var(--cream);color:var(--text)}
 .due.ok{border-color:var(--lime);color:var(--lime)}
 .owner{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
 .prog{display:flex;align-items:center;gap:10px;position:relative}
@@ -2051,8 +2055,8 @@ function progress(t){ const st = stepsOf(t); return st.length ? {done:st.filter(
 function fmtDate(d){ const [y, m, dd] = d.split("-").map(Number); return dd + " " + MONTHS[m - 1]; }
 function dueInfo(d, done){
   const n = daysTo(d); if (n == null) return null;
-  const cls = done ? "ok" : n < 0 ? "late" : n <= 2 ? "soon" : "";
-  const txt = done ? "Done · " + fmtDate(d) : n === 0 ? "Due today" : n === 1 ? "Due tomorrow" : n < 0 ? plural(-n, "day", "days") + " late" : "Due " + fmtDate(d);
+  const cls = done ? "ok" : n < 0 ? "past" : n <= 2 ? "soon" : "";
+  const txt = done ? "Done · " + fmtDate(d) : n === 0 ? "Due today" : n === 1 ? "Due tomorrow" : "Due " + fmtDate(d);
   return {n, cls, txt};
 }
 function topicDone(t){ const p = progress(t); return t.kind === "note" ? !!p && p.done === p.all : !isOpen(t); }
@@ -2287,7 +2291,7 @@ function clearAtt(w, keepUrls){ S.att[w].forEach(a => { if (!keepUrls || a.st !=
 function mediaCount(t){ return (Array.isArray(t.media) ? t.media.length : 0) + repliesFor(t.id).reduce((n, r) => n + (Array.isArray(r.media) ? r.media.length : 0), 0); }
 
 /* the app version each person runs, so the admin can see who is still on an old copy */
-const APPV = 20;
+const APPV = 21;
 /* ---------- activity: time on each page and what people did, sent once a minute (admin reads it) ---------- */
 const TR = {ms:0, v:{}, a:{}, log:[], lastIn:Date.now(), start:Date.now(), started:false};
 ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(ev => window.addEventListener(ev, () => { TR.lastIn = Date.now(); }, {passive:true, capture:true}));
@@ -2580,7 +2584,7 @@ function renderLive(){
   $("#un-seg").__h = [["mine", "Mine"], ["team", "Team"]].map(([k, l]) => `<button type="button" data-un-scope="${k}" aria-pressed="${(k === "mine") === mine}"${k === "mine" && !S.mySeat ? " disabled" : ""}>${l}</button>`).join("");
   const R = runSheet(mine), can = canPost();
   const stat = (cls, n, label) => `<div class="${cls}${n ? " on" : ""}"><b>${n}</b><span>${label}</span></div>`;
-  let h = `<div class="un-stats">${stat("late", R.late, "Late")}${stat("wk", R.week, "Due in 7 days")}${stat("ok", R.doneWk, "Done this week")}</div>`;
+  let h = `<div class="un-stats">${stat("past", R.late, "Date passed")}${stat("wk", R.week, "Due in 7 days")}${stat("ok", R.doneWk, "Done this week")}</div>`;
   const list = S.unAll ? R.rows : R.rows.slice(0, 7);
   h += list.length ? list.map(r => {
     const du = r.due ? dueInfo(r.due, r.done) : null, s = seatById(r.seat), pc = r.pr ? cup(r.pr.color).c : "";
@@ -2765,7 +2769,7 @@ function renderDrawer(){
     <div class="plan-row">
       <label class="fld"><span>Project</span><select data-plan="project" ${can ? "" : "disabled"}><option value="">No project</option>${P.map(p => `<option value="${esc(p.id)}" ${t.project === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label>
       <label class="fld"><span>Owner</span><select data-plan="owner" ${can ? "" : "disabled"}><option value="">Nobody yet</option>${seats().map(x => `<option value="${esc(x.id)}" ${t.owner === x.id ? "selected" : ""}>${esc(seatName(x))}</option>`).join("")}</select></label>
-      <label class="fld"><span>Due</span><input type="date" data-plan="due" value="${esc(t.due || "")}" ${can ? "" : "disabled"}></label>
+      <label class="fld"><span>Due</span><span class="due-in"><input type="date" data-plan="due" value="${esc(t.due || "")}" ${can ? "" : "disabled"}>${t.due && can ? `<button type="button" class="due-x" data-due-clear aria-label="Remove the due date" title="Remove the due date">✕</button>` : ""}</span></label>
     </div>
     <div class="steps-h"><span class="tag-m">Steps</span>${pr ? `<div class="prog-bar"><i style="width:${Math.round(100 * pr.done / pr.all)}%"></i></div><span class="mono">${pr.done}/${pr.all} done</span>` : `<span class="mono">Break big topics into steps, each with a person and a date</span>`}</div>
     ${st.length ? `<div class="steps">${st.map(x => { const who = seatById(x.seat); const du = x.due ? dueInfo(x.due, x.done) : null; return `<div class="step${x.done ? " done" : ""}" data-step="${esc(x.id)}"><button type="button" class="step-c" data-step-toggle aria-pressed="${!!x.done}" ${can ? "" : "disabled"} aria-label="${x.done ? "Mark not done" : "Mark done"}">${x.done ? "✓" : ""}</button><span class="step-t">${rich(x.text)}</span>${du ? `<span class="due ${du.cls}">${esc(du.txt)}</span>` : ""}${who ? `<span title="${esc(seatName(who))}">${medal(who, 20)}</span>` : ""}${can ? `<button type="button" class="del" data-step-del>Delete</button>` : ""}</div>`; }).join("")}</div>` : ""}
@@ -3358,6 +3362,7 @@ document.addEventListener("click", e => {
   if ((el = q("[data-close-modal]"))){ closeModal(); return; }
   if ((el = q("[data-to]"))){ el.setAttribute("aria-pressed", el.getAttribute("aria-pressed") !== "true"); return; }
   if ((el = q("[data-vote]"))){ const tid = S.openId; if (tid && canPost()) toggleVote(tid, +el.dataset.vote); return; }
+  if ((el = q("[data-due-clear]"))){ if (S.openId && canPost()) updateThread(S.openId, {due:null}); return; }
   if ((el = q("[data-mreact]"))){ const [mid, g] = el.dataset.mreact.split("|"); if (canPost()){ toggleReact(mid, g); S.lcPick = null; } return; }
   if ((el = q("[data-mpick]"))){ S.lcPick = S.lcPick === el.dataset.mpick ? null : el.dataset.mpick; schedule(); return; }
   if ((el = q("[data-lc-open]"))){ S.channel = lcChan(); go("chat"); return; }
