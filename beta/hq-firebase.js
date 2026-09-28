@@ -4,7 +4,7 @@
    room.presence/onPeers, plus media for photos and videos) from Firestore, behind an email sign-in limited to the team. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, collection, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, addDoc, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, collection, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, addDoc, increment, arrayUnion, Bytes } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDPCvwE-B5UcIwFauo4aQLWrBpxU8xm2NE",
@@ -69,9 +69,28 @@ function mkCol(path, order){
 }
 const db = {doc:mkDoc, collection:mkCol};
 
-/* ---------- media: photos and videos, kept in Firestore in <1 MB base64 chunks (no paid Storage needed) ---------- */
-const CHUNK = 720000, VIDEO_MAX = 30 * 1024 * 1024;
+/* ---------- media: photos and videos, kept in Firestore in <1 MB chunks (no paid Storage needed) ----------
+   New uploads are stored as raw bytes (older ones as base64 text, still readable). Every file is saved on the
+   device after its first download, so it is fetched from Firebase once per device, not on every visit.
+   The free plan holds 1 GB in total, so uploads stop at a team budget and the text always keeps room. */
+const CHUNK = 720000, CHUNK_B = 1000000, VIDEO_MAX = 30 * 1024 * 1024;
+const BUDGET = 850 * 1024 * 1024, PHOTO_BUDGET = 950 * 1024 * 1024;
 const mediaCache = new Map();
+const DEV = "hq-media-v1", devKey = id => new URL("__media/" + id, location.href).href;
+async function devGet(id){ try { if (!("caches" in window)) return null; const r = await (await caches.open(DEV)).match(devKey(id)); return r ? await r.blob() : null; } catch (e){ return null; } }
+async function devPut(id, blob){ try { if ("caches" in window) await (await caches.open(DEV)).put(devKey(id), new Response(blob, {headers:{"content-type":blob.type || "application/octet-stream"}})); } catch (e){} }
+async function devDel(id){ try { if ("caches" in window) await (await caches.open(DEV)).delete(devKey(id)); } catch (e){} }
+/* what the team's photos and videos take in the database (base64 text is a third bigger than the file) */
+const storedSize = m => (m.enc === "b" ? (m.size || 0) : Math.ceil((m.size || 0) * 4 / 3)) + (m.poster ? m.poster.length : 0) + 400;
+let usageMemo = null;
+function readUsage(){
+  return new Promise((res, rej) => { let u = null, done = false; u = onSnapshot(collection(fs, "media"), s => {
+    if (done) return; done = true; setTimeout(() => u && u(), 0);
+    const r = {bytes:0, photos:0, videos:0, photoBytes:0, videoBytes:0, budget:BUDGET, total:1024 * 1024 * 1024};
+    s.docs.forEach(d => { const m = d.data() || {}; const b = storedSize(m); r.bytes += b; if (m.kind === "video"){ r.videos++; r.videoBytes += b; } else { r.photos++; r.photoBytes += b; } });
+    res(r);
+  }, e => rej(mapErr(e))); });
+}
 function b64(u8){ let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
 function unb64(s){ const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
 async function shrinkImage(file){
@@ -108,25 +127,35 @@ function mkMedia(uid){
     async put(file, onProgress){
       const isV = /^video\//.test(file.type);
       if (!isV && !/^image\//.test(file.type)) throw {code:"unsupported", message:"Only photos and videos."};
-      if (isV && file.size > VIDEO_MAX) throw {code:"too_big", message:"Videos can be up to 30 MB."};
+      if (isV && file.size > VIDEO_MAX) throw {code:"too_big", message:"Videos can be up to 30 MB. Trim it, record at 720p, or share a Google Drive / YouTube link."};
       const p = isV ? {blob:file, type:file.type || "video/mp4", ...(await videoPoster(file))} : await shrinkImage(file);
-      const u8 = new Uint8Array(await p.blob.arrayBuffer()), n = Math.max(1, Math.ceil(u8.length / CHUNK));
+      const u8 = new Uint8Array(await p.blob.arrayBuffer()), n = Math.max(1, Math.ceil(u8.length / CHUNK_B));
+      /* keep the free 1 GB from filling up: past the budget, videos stop first, then photos; text is never blocked */
+      try {
+        if (!usageMemo || Date.now() - usageMemo.at > 5 * 60e3) usageMemo = {at:Date.now(), u:await readUsage()};
+        const after = usageMemo.u.bytes + u8.length;
+        if (after > (isV ? BUDGET : PHOTO_BUDGET)) throw {code:"too_big", message:isV ? "The team's video space is full. Share this video as a Google Drive or YouTube link instead." : "The team's photo space is full. Delete old uploads you don't need, or share a link instead."};
+      } catch (e){ if (e && e.code === "too_big") throw e; }
       const id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
       let sent = 0, next = 0;
-      const work = async () => { while (next < n){ const i = next++; await setDoc(doc(fs, "media", id, "c", String(i)), {d:b64(u8.subarray(i * CHUNK, (i + 1) * CHUNK))}); sent++; if (onProgress) onProgress(sent / n); } };
+      const work = async () => { while (next < n){ const i = next++; await setDoc(doc(fs, "media", id, "c", String(i)), {b:Bytes.fromUint8Array(u8.slice(i * CHUNK_B, (i + 1) * CHUNK_B))}); sent++; if (onProgress) onProgress(sent / n); } };
       try { await Promise.all([work(), work(), work()]); } catch (e){ throw mapErr(e); }
-      const meta = {kind:isV ? "video" : "image", type:p.type, name:String(file.name || "").slice(0, 120), size:u8.length, n, w:p.w || 0, h:p.h || 0, poster:p.poster || null, dur:p.dur || 0, at:Date.now(), by:uid};
+      const meta = {kind:isV ? "video" : "image", type:p.type, name:String(file.name || "").slice(0, 120), size:u8.length, n, enc:"b", w:p.w || 0, h:p.h || 0, poster:p.poster || null, dur:p.dur || 0, at:Date.now(), by:uid};
       await setDoc(doc(fs, "media", id), meta).catch(fail);
-      mediaCache.set(id, Promise.resolve(URL.createObjectURL(new Blob([u8], {type:p.type}))));
+      if (usageMemo) usageMemo.u.bytes += storedSize(meta);
+      const blob = new Blob([u8], {type:p.type}); devPut(id, blob);
+      mediaCache.set(id, Promise.resolve(URL.createObjectURL(blob)));
       return {id, kind:meta.kind, w:meta.w, h:meta.h, poster:meta.poster, name:meta.name};
     },
     url(id){
       if (!mediaCache.has(id)){
         const pr = (async () => {
+          const kept = await devGet(id); if (kept) return URL.createObjectURL(kept);
           const m = await getDoc(doc(fs, "media", id)); if (!m.exists()) throw {code:"not_found"};
           const meta = m.data();
-          const parts = await Promise.all(Array.from({length:meta.n}, (_, i) => getDoc(doc(fs, "media", id, "c", String(i))).then(s => unb64(s.data().d))));
-          return URL.createObjectURL(new Blob(parts, {type:meta.type}));
+          const parts = await Promise.all(Array.from({length:meta.n}, (_, i) => getDoc(doc(fs, "media", id, "c", String(i))).then(s => { const x = s.data(); return x.b ? x.b.toUint8Array() : unb64(x.d); })));
+          const blob = new Blob(parts, {type:meta.type}); devPut(id, blob);
+          return URL.createObjectURL(blob);
         })();
         pr.catch(() => mediaCache.delete(id));
         mediaCache.set(id, pr);
@@ -134,8 +163,9 @@ function mkMedia(uid){
       return mediaCache.get(id);
     },
     async del(id){
-      try { const m = await getDoc(doc(fs, "media", id)); const n = m.exists() ? m.data().n : 0; for (let i = 0; i < n; i++) await deleteDoc(doc(fs, "media", id, "c", String(i))); await deleteDoc(doc(fs, "media", id)); } catch (e){}
-    }
+      try { const m = await getDoc(doc(fs, "media", id)); const n = m.exists() ? m.data().n : 0; for (let i = 0; i < n; i++) await deleteDoc(doc(fs, "media", id, "c", String(i))); await deleteDoc(doc(fs, "media", id)); devDel(id); usageMemo = null; } catch (e){}
+    },
+    usage: () => readUsage()
   };
 }
 
@@ -164,17 +194,18 @@ const people = {};
 function watchPeople(){ onSnapshot(collection(fs, "people"), s => { s.docs.forEach(d => { people[d.id] = d.data(); }); }, () => {}); }
 
 /* ---------- room: presence through presence/{uid} with a heartbeat ----------
-   One beat a minute keeps six people online all day well inside the free 50k reads/day. */
+   One beat every two minutes (and one when the app is hidden or shown) keeps six people online all day
+   well inside the free 50k reads/day; a hidden app counts as away at once. */
 function mkRoom(uid){
   let mine = {}, pushT = 0, last = [], cbs = [];
-  const push = () => setDoc(doc(fs, "presence", uid), {p:mine, at:Date.now(), by:uid}).catch(() => {});
+  const push = () => setDoc(doc(fs, "presence", uid), {p:mine, at:Date.now(), by:uid, away:document.visibilityState === "hidden"}).catch(() => {});
   const soon = () => { clearTimeout(pushT); pushT = setTimeout(push, 250); };
-  setInterval(() => { if (document.visibilityState === "visible") push(); }, 60000);
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") push(); });
+  setInterval(() => { if (document.visibilityState === "visible") push(); }, 120000);
+  document.addEventListener("visibilitychange", () => push());
   window.addEventListener("pagehide", () => { setDoc(doc(fs, "presence", uid), {p:mine, at:0, by:uid}).catch(() => {}); });
   const emit = () => {
     const now = Date.now();
-    const peers = last.filter(x => x && now - (x.at || 0) < 150000).map(x => ({kind:"viewer", presence:x.p || {}, by:x.by, isMe:x.by === uid, guest:false}));
+    const peers = last.filter(x => x && !x.away && now - (x.at || 0) < 270000).map(x => ({kind:"viewer", presence:x.p || {}, by:x.by, isMe:x.by === uid, guest:false}));
     cbs.forEach(fn => { try { fn({peers}); } catch (e){} });
   };
   onSnapshot(collection(fs, "presence"), s => { last = s.docs.map(d => d.data()); emit(); }, () => {});

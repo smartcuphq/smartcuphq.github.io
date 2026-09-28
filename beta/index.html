@@ -495,6 +495,16 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
 .ac-lock{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:6px 10px;border:1px solid var(--line-2);font:600 9.5px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .ac-lock b{color:var(--lime)}
 .ac-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 18px}
+.ac-store{border:1.5px solid var(--cream);background:var(--panel);padding:14px 16px;margin:0 0 26px}
+.ac-store-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.ac-store-h .tag-m{color:var(--lime);margin-right:auto}
+.ac-store-h b{font:800 24px/1 var(--f-body);letter-spacing:-.03em}
+.ac-store-h .mono{font-size:10px;color:var(--muted)}
+.ac-store-bar{position:relative;height:10px;margin:12px 0 10px;background:rgba(243,239,232,.08);border:1px solid var(--line-2)}
+.ac-store-bar i{position:absolute;inset:0 auto 0 0;background:var(--lime)}
+.ac-store.hot .ac-store-bar i{background:var(--amber)}
+.ac-store-bar em{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--cream)}
+.ac-store-f{font-size:10.5px;line-height:1.6;color:var(--muted)}
 .ac-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.5px;background:var(--cream);border:1.5px solid var(--cream);margin:0 0 26px}
 .ac-sum div{background:var(--panel);padding:14px 16px 13px;min-width:0}
 .ac-sum b{display:block;font:800 clamp(24px,2.6vw,34px)/1 var(--f-body);letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2246,7 +2256,7 @@ function addFiles(w, files){
   for (const file of files){
     const isV = /^video\//.test(file.type), isI = /^image\//.test(file.type);
     if (!isV && !isI){ toast("Only photos and videos can be added."); continue; }
-    if (isV && file.size > S.media.maxVideo){ toast(`${file.name} is over 30 MB. Trim it or record at 720p.`); continue; }
+    if (isV && file.size > S.media.maxVideo){ toast(`${file.name} is over 30 MB. Trim it, record at 720p, or paste a Google Drive / YouTube link instead.`); continue; }
     const a = {key:rid("u"), name:file.name, kind:isV ? "video" : "image", st:"up", pct:0, ref:null, local:URL.createObjectURL(file)};
     S.att[w].push(a); renderAtt(w);
     S.media.put(file, p => { a.pct = p; renderAtt(w); }).then(ref => { a.ref = ref; a.st = "ok"; track("upload", a.name); if (ref.kind === "image") MURL.set(ref.id, a.local); renderAtt(w); },
@@ -2257,7 +2267,7 @@ function clearAtt(w, keepUrls){ S.att[w].forEach(a => { if (!keepUrls || a.st !=
 function mediaCount(t){ return (Array.isArray(t.media) ? t.media.length : 0) + repliesFor(t.id).reduce((n, r) => n + (Array.isArray(r.media) ? r.media.length : 0), 0); }
 
 /* the app version each person runs, so the admin can see who is still on an old copy */
-const APPV = 18;
+const APPV = 19;
 /* ---------- activity: time on each page and what people did, sent once a minute (admin reads it) ---------- */
 const TR = {ms:0, v:{}, a:{}, log:[], lastIn:Date.now(), start:Date.now(), started:false};
 ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(ev => window.addEventListener(ev, () => { TR.lastIn = Date.now(); }, {passive:true, capture:true}));
@@ -2296,6 +2306,7 @@ async function loadActivity(force){
   if (!S.activity || (S.acLoading && !force)) return;
   S.acLoading = true;
   try { S.acDocs = await S.activity.all(); S.acErr = null; } catch (e){ S.acErr = e; }
+  if (S.media && S.media.usage) try { S.acUse = await S.media.usage(); } catch (e){}
   S.acLoading = false; S.acAt = Date.now(); schedule();
 }
 function renderActivity(){
@@ -2317,6 +2328,8 @@ function renderActivity(){
     <div class="ac-bar"><div class="seg">${[[1, "Today"], [7, "7 days"], [30, "30 days"]].map(([n, l]) => `<button type="button" data-ac-range="${n}" aria-pressed="${range === n}">${l}</button>`).join("")}</div><button type="button" class="btn sm ghost" data-ac-reload>${S.acLoading ? "Loading…" : "Refresh"}</button>${S.acAt ? `<span class="mono">Updated ${clock(S.acAt)}</span>` : ""}</div>
     ${S.acErr ? `<div class="ac-empty">Couldn't load activity. If you just added the new rule in Firebase, wait a minute and press Refresh.</div>` : ""}
     <div class="ac-sum"><div><b>${hm(total)}</b><span>Team time · ${lbl}</span></div><div><b>${acts}</b><span>Things done</span></div><div><b>${esc(top)}</b><span>Most active</span></div><div><b>${activeNow}/${seats().length}</b><span>Online now</span></div></div>
+    ${(u => { if (!u) return ""; const MB = x => (x / 1048576).toFixed(x < 10485760 ? 1 : 0) + " MB"; const pct = Math.min(100, Math.round(100 * u.bytes / u.total)); const hot = u.bytes > u.budget * .8;
+      return `<div class="ac-store${hot ? " hot" : ""}"><div class="ac-store-h"><span class="tag-m">Free storage · Firebase 1 GB</span><b>${MB(u.bytes)}</b><span class="mono">of 1024 MB · ${pct}%</span></div><div class="ac-store-bar"><i style="width:${Math.max(1, pct)}%"></i><em style="left:${Math.round(100 * u.budget / u.total)}%" title="Videos stop here"></em></div><div class="ac-store-f mono">${u.photos} photos · ${MB(u.photoBytes)} &nbsp;·&nbsp; ${u.videos} videos · ${MB(u.videoBytes)} &nbsp;·&nbsp; ${hot ? "Getting full: share long videos as links" : "Plenty of room"}. Videos stop at ${MB(u.budget)}, text never stops.</div></div>`; })(S.acUse)}
     <div class="ac-grid">${people.map(({s, e}) => {
       const c = cup(colorOf(s)).c, ms = e ? e.ms : 0;
       const split = ACV.map(([k, l, col]) => [k, l, col, e ? e.v[k] || 0 : 0]).filter(x => x[3] > 0);
