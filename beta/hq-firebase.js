@@ -4,7 +4,7 @@
    room.presence/onPeers, plus media for photos and videos) from Firestore, behind an email sign-in limited to the team. */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, collection, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, addDoc, increment, arrayUnion, Bytes } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, collection, getDoc as fsGetDoc, setDoc as fsSetDoc, updateDoc as fsUpdateDoc, deleteDoc as fsDeleteDoc, onSnapshot as fsOnSnapshot, query, orderBy, addDoc as fsAddDoc, increment, arrayUnion, Bytes } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDPCvwE-B5UcIwFauo4aQLWrBpxU8xm2NE",
@@ -32,9 +32,39 @@ const lsGet = k => { try { return localStorage.getItem(k); } catch (e){ return n
 const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e){} };
 const allowed = email => TEAM.includes(String(email || "").toLowerCase());
 
+/* ---------- free-plan meter ----------
+   The free plan allows 50k reads, 20k writes and 20k deletes a day (the day ends at midnight in California,
+   08:00 in Lisbon). Every read and write this device makes is counted here and saved with the activity,
+   so the admin sees the whole team's total. It counts on the safe side: every app open as a full re-read. */
+const U = {r:0, w:0, d:0};
+let quotaAt = 0;
+const PDAY = new Intl.DateTimeFormat("en-CA", {timeZone:"America/Los_Angeles", year:"numeric", month:"2-digit", day:"2-digit"});
+const PCLOCK = new Intl.DateTimeFormat("en-US", {timeZone:"America/Los_Angeles", hour12:false, hour:"2-digit", minute:"2-digit", second:"2-digit"});
+const pday = (t) => PDAY.format(t || new Date());
+let resetMemo = 0;
+function noteQuota(e){ if (e && (e.code === "resource-exhausted" || /quota/i.test(e.message || ""))){ quotaAt = Date.now(); try { window.dispatchEvent(new CustomEvent("hq-quota")); } catch (x){} } }
+const counted = (k, pr) => { U[k]++; return pr.catch(e => { noteQuota(e); throw e; }); };
+const getDoc = r => counted("r", fsGetDoc(r));
+const setDoc = (r, d, o) => counted("w", o ? fsSetDoc(r, d, o) : fsSetDoc(r, d));
+const updateDoc = (r, d) => counted("w", fsUpdateDoc(r, d));
+const addDoc = (r, d) => counted("w", fsAddDoc(r, d));
+const deleteDoc = r => counted("d", fsDeleteDoc(r));
+function onSnapshot(ref, next, err){
+  let first = true;
+  return fsOnSnapshot(ref, s => {
+    try {
+      if (Array.isArray(s.docs)){ if (first) U.r += Math.max(1, s.size || 0); else U.r += typeof s.docChanges === "function" ? s.docChanges().length : 0; }
+      else U.r += 1;
+      first = false;
+    } catch (x){}
+    next(s);
+  }, e => { noteQuota(e); if (err) err(e); });
+}
+
 /* ---------- error mapping to the codes the room understands ---------- */
 function mapErr(e){
   const c = e && e.code || "";
+  noteQuota(e);
   if (c === "permission-denied") return {code:"invalid_argument", message:e.message};
   if (c === "resource-exhausted") return {code:"resource_exhausted", message:e.message};
   if (c === "unauthenticated") return {code:"revoked", message:e.message};
@@ -181,7 +211,27 @@ function mkActivity(uid){
       if (x.acts && Object.keys(x.acts).length) d.acts = inc(x.acts);
       if (x.log && x.log.length) d.log = arrayUnion(...x.log);
       if (x.start) d.starts = arrayUnion(x.start);
-      return setDoc(doc(fs, "activity", uid + "_" + d.day), d, {merge:true}).catch(fail);
+      const q = {r:U.r, w:U.w, d:U.d}, pd = pday(); U.r = 0; U.w = 0; U.d = 0;
+      if (q.r) d.qr = {[pd]:increment(q.r)};
+      if (q.w) d.qw = {[pd]:increment(q.w)};
+      if (q.d) d.qd = {[pd]:increment(q.d)};
+      return setDoc(doc(fs, "activity", uid + "_" + d.day), d, {merge:true}).catch(e => { U.r += q.r; U.w += q.w; U.d += q.d; fail(e); });
+    },
+    /* reads and writes not yet saved on this device */
+    pending: () => U.r + U.w + U.d,
+    quotaAt: () => quotaAt,
+    /* when the free day ends, as a time on this device's clock */
+    resetsAt(){ const now = new Date(); if (resetMemo > now.getTime()) return new Date(resetMemo); const p = PCLOCK.formatToParts(now); const g = t => +(p.find(x => x.type === t) || {}).value || 0; const gone = ((g("hour") % 24) * 3600 + g("minute") * 60 + g("second")) * 1000; resetMemo = now.getTime() + 864e5 - gone - now.getMilliseconds(); return new Date(resetMemo); },
+    /* the whole team's use of today's free amounts (admin only; about a dozen reads) */
+    async today(uids){
+      const pd = pday(), d1 = new Date(pd + "T12:00:00"), d2 = new Date(d1.getTime() + 864e5);
+      const ds = [d1, d2].map(x => x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"));
+      const out = {r:U.r, w:U.w, d:U.d, day:pd, people:0};
+      const snaps = await Promise.all([...new Set(uids || [])].flatMap(u => ds.map(dd => getDoc(doc(fs, "activity", u + "_" + dd)).catch(() => null))));
+      const seen = new Set();
+      for (const sn of snaps){ if (!sn || !sn.exists()) continue; const x = sn.data() || {}; const r = (x.qr || {})[pd] || 0, w = (x.qw || {})[pd] || 0, dl = (x.qd || {})[pd] || 0; out.r += r; out.w += w; out.d += dl; if (r || w) seen.add(x.uid); }
+      out.people = seen.size;
+      return out;
     },
     all(){
       return new Promise((res, rej) => { let u = null, done = false; u = onSnapshot(collection(fs, "activity"), s => { if (done) return; done = true; res(s.docs.map(x => x.data())); setTimeout(() => u && u(), 0); }, e => rej(mapErr(e))); });
@@ -259,6 +309,7 @@ function authMsg(err){
   if (c === "auth/unauthorized-domain" || c === "auth/unauthorized-continue-uri") return "This address isn't allowed in Firebase yet. Ask the admin to add it under Authorized domains.";
   if (c === "auth/invalid-action-code" || c === "auth/expired-action-code") return "That link has expired or was already used. Send a new one.";
   if (c === "auth/network-request-failed") return "No internet connection.";
+  if (c === "auth/quota-exceeded" || c === "auth/too-many-requests") return "Today's sign-in emails are used up (the free plan sends 5 a day). Tap Continue with Google instead.";
   if (c === "auth/popup-blocked") return "The browser blocked the Google window. Allow pop-ups, or use the email link.";
   return "Couldn't sign in (" + (c || err && err.message || "error") + ").";
 }

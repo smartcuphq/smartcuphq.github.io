@@ -495,6 +495,12 @@ body.coach-on .dock-quick[data-act="settings"]{animation:coachPing 1.6s ease-in-
 .ac-lock{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:6px 10px;border:1px solid var(--line-2);font:600 9.5px/1.3 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .ac-lock b{color:var(--lime)}
 .ac-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 18px}
+.ac-q-row{display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:10px;align-items:center;margin:10px 0}
+.ac-q-row .ac-store-bar{margin:0}
+.ac-q-row b{font:800 16px/1 var(--f-body)}
+.ac-q-row .mono{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.ac-q-row.hot .ac-store-bar i{background:var(--amber)}
+@media (max-width:640px){.ac-q-row{grid-template-columns:54px minmax(0,1fr) auto}.ac-q-row > .mono:last-child{display:none}}
 .ac-store{border:1.5px solid var(--cream);background:var(--panel);padding:14px 16px;margin:0 0 26px}
 .ac-store-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .ac-store-h .tag-m{color:var(--lime);margin-right:auto}
@@ -1432,13 +1438,13 @@ button.opt:disabled{cursor:default}
     <div id="hq-g-mark"></div>
     <div class="tag-m" style="color:var(--lime)">Smart Cup · Team only</div>
     <h1>Enter the<br><span>room.</span></h1>
-    <p id="hq-g-sub">Sign in with the email the team uses. No password: we send you a link.</p>
+    <p id="hq-g-sub">Sign in with the Google account the team uses. One tap, no password.</p>
+    <button type="button" class="btn primary" id="hq-g-google">Continue with Google</button>
+    <div class="hq-g-or"><span>or get a link by email</span></div>
     <form id="hq-g-form" autocomplete="on">
       <input id="hq-g-email" type="email" inputmode="email" autocomplete="email" placeholder="your@email.com" aria-label="Email" required>
-      <button type="submit" class="btn primary" id="hq-g-send">Send me a sign-in link</button>
+      <button type="submit" class="btn" id="hq-g-send">Send me a sign-in link</button>
     </form>
-    <div class="hq-g-or"><span>or</span></div>
-    <button type="button" class="btn" id="hq-g-google">Continue with Google</button>
     <p class="hq-g-msg" id="hq-g-msg" role="status"></p>
   </div>
 </div>
@@ -1900,9 +1906,25 @@ function pulseMark(size, lit, big){
 /* ---------- toast & banner ---------- */
 let toastT = 0;
 function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2800); }
+/* ---------- the free Firebase plan: a warning before it runs out, a clear note if it does ---------- */
+const QUOTA = {r:["reads", 50000], w:["writes", 20000], d:["deletes", 20000]};
+function quotaPct(q){ if (!q) return null; let top = null; for (const k in QUOTA){ const pct = Math.round(100 * (q[k] || 0) / QUOTA[k][1]); if (!top || pct > top.pct) top = {k, pct, name:QUOTA[k][0]}; } return top; }
+async function loadQuota(force){
+  if (!S.isOwner || !S.activity || !S.activity.today || S.qLoading) return;
+  if (!force && S.qAt && Date.now() - S.qAt < 30 * 60e3) return;
+  const uids = Object.keys(S.claims || {}); if (S.uid && !uids.includes(S.uid)) uids.push(S.uid);
+  S.qLoading = true;
+  try { S.quota = await S.activity.today(uids); S.qAt = Date.now(); } catch (e){}
+  S.qLoading = false; schedule();
+}
+window.addEventListener("hq-quota", () => { if (!S.quotaUntil || Date.now() > S.quotaUntil){ S.quotaUntil = S.activity && S.activity.resetsAt ? S.activity.resetsAt().getTime() : Date.now() + 3 * 36e5; schedule(); } });
+setInterval(() => { if (document.visibilityState === "visible" && S.loaded.claims) loadQuota(); }, 5 * 60e3);
 function renderBanner(){
   const b = $("#banner"); let msg = "";
-  if (S.offline) msg = "Can't reach the room right now. Check your internet connection and reload.";
+  const top = S.isOwner ? quotaPct(S.quota) : null, resets = top && top.pct >= 70 && S.activity && S.activity.resetsAt ? clock(S.activity.resetsAt().getTime()) : "";
+  if (S.quotaUntil && Date.now() < S.quotaUntil) msg = `Firebase's free daily limit is used up. Everything already on screen stays. New posts and messages go through again after ${clock(S.quotaUntil)}. Nothing to pay.`;
+  else if (top && top.pct >= 70) msg = `Heads-up (only you see this): ${top.pct}% of today's free Firebase ${top.name} are used. It resets at ${resets}. Nothing to pay; if it runs out, the app pauses until then.`;
+  else if (S.offline) msg = "Can't reach the room right now. Check your internet connection and reload.";
   else if (S.readOnly) msg = "You can only view this room. To post, the admin needs to give you edit access.";
   b.hidden = !msg; b.textContent = msg;
 }
@@ -2265,7 +2287,7 @@ function clearAtt(w, keepUrls){ S.att[w].forEach(a => { if (!keepUrls || a.st !=
 function mediaCount(t){ return (Array.isArray(t.media) ? t.media.length : 0) + repliesFor(t.id).reduce((n, r) => n + (Array.isArray(r.media) ? r.media.length : 0), 0); }
 
 /* the app version each person runs, so the admin can see who is still on an old copy */
-const APPV = 19;
+const APPV = 20;
 /* ---------- activity: time on each page and what people did, sent once a minute (admin reads it) ---------- */
 const TR = {ms:0, v:{}, a:{}, log:[], lastIn:Date.now(), start:Date.now(), started:false};
 ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(ev => window.addEventListener(ev, () => { TR.lastIn = Date.now(); }, {passive:true, capture:true}));
@@ -2279,7 +2301,7 @@ setInterval(() => {
 function track(k, x){ TR.a[k] = (TR.a[k] || 0) + 1; TR.log.push({at:Date.now(), k, x:String(x || "").slice(0, 80)}); if (TR.log.length > 40) trFlush(); }
 function trFlush(){
   if (!S.activity || !S.mySeat) return;
-  if (!TR.ms && !TR.log.length && TR.started) return;
+  if (!TR.ms && !TR.log.length && TR.started && !(S.activity.pending && S.activity.pending() > 150)) return;
   const s = mySeatObj(), x = {seat:S.mySeat, name:s ? seatName(s) : "", v:APPV, ms:TR.ms, views:TR.v, acts:TR.a, log:TR.log.splice(0)};
   if (!TR.started){ x.start = TR.start; TR.started = true; }
   TR.ms = 0; TR.v = {}; TR.a = {};
@@ -2305,6 +2327,7 @@ async function loadActivity(force){
   S.acLoading = true;
   try { S.acDocs = await S.activity.all(); S.acErr = null; } catch (e){ S.acErr = e; }
   if (S.media && S.media.usage) try { S.acUse = await S.media.usage(); } catch (e){}
+  loadQuota(true);
   S.acLoading = false; S.acAt = Date.now(); schedule();
 }
 function renderActivity(){
@@ -2326,6 +2349,8 @@ function renderActivity(){
     <div class="ac-bar"><div class="seg">${[[1, "Today"], [7, "7 days"], [30, "30 days"]].map(([n, l]) => `<button type="button" data-ac-range="${n}" aria-pressed="${range === n}">${l}</button>`).join("")}</div><button type="button" class="btn sm ghost" data-ac-reload>${S.acLoading ? "Loading…" : "Refresh"}</button>${S.acAt ? `<span class="mono">Updated ${clock(S.acAt)}</span>` : ""}</div>
     ${S.acErr ? `<div class="ac-empty">Couldn't load activity. If you just added the new rule in Firebase, wait a minute and press Refresh.</div>` : ""}
     <div class="ac-sum"><div><b>${hm(total)}</b><span>Team time · ${lbl}</span></div><div><b>${acts}</b><span>Things done</span></div><div><b>${esc(top)}</b><span>Most active</span></div><div><b>${activeNow}/${seats().length}</b><span>Online now</span></div></div>
+    ${(q => { if (!q) return ""; const row = (k) => { const [name, max] = QUOTA[k], n = q[k] || 0, pct = Math.min(100, Math.round(100 * n / max)); return `<div class="ac-q-row${pct >= 70 ? " hot" : ""}"><span class="mono">${name}</span><div class="ac-store-bar"><i style="width:${Math.max(1, pct)}%"></i></div><b>${n.toLocaleString("en-US")}</b><span class="mono">/ ${max.toLocaleString("en-US")} · ${pct}%</span></div>`; };
+      return `<div class="ac-store ac-q"><div class="ac-store-h"><span class="tag-m">Free Firebase plan · today</span><span class="mono">resets at ${S.activity && S.activity.resetsAt ? clock(S.activity.resetsAt().getTime()) : "—"} your time</span></div>${row("r")}${row("w")}${row("d")}<div class="ac-store-f mono">Counted by every teammate's app (${q.people} active today) and saved each minute, on the safe side. Over 70% you get a warning on every page. Nothing is ever charged: if a limit runs out, the app pauses until the reset.</div></div>`; })(S.quota)}
     ${(u => { if (!u) return ""; const MB = x => (x / 1048576).toFixed(x < 10485760 ? 1 : 0) + " MB"; const pct = Math.min(100, Math.round(100 * u.bytes / u.total)); const hot = u.bytes > u.budget * .8;
       return `<div class="ac-store${hot ? " hot" : ""}"><div class="ac-store-h"><span class="tag-m">Free storage · Firebase 1 GB</span><b>${MB(u.bytes)}</b><span class="mono">of 1024 MB · ${pct}%</span></div><div class="ac-store-bar"><i style="width:${Math.max(1, pct)}%"></i><em style="left:${Math.round(100 * u.budget / u.total)}%" title="Videos stop here"></em></div><div class="ac-store-f mono">${u.photos} photos · ${MB(u.photoBytes)} &nbsp;·&nbsp; ${u.videos} videos · ${MB(u.videoBytes)} &nbsp;·&nbsp; ${hot ? "Getting full: share long videos as links" : "Plenty of room"}. Videos stop at ${MB(u.budget)}, text never stops.</div></div>`; })(S.acUse)}
     <div class="ac-grid">${people.map(({s, e}) => {
@@ -3546,7 +3571,7 @@ async function connect(){
     }, onDbErr);
     db.collection("claims").onSnapshot(snap => {
       const c = {}; for (const d of snap.docs) c[d.id] = d.data(); S.claims = c;
-      S.loaded.claims = true; computeIdentity(); schedule();
+      S.loaded.claims = true; computeIdentity(); schedule(); loadQuota();
     }, onDbErr);
     db.collection("needs").onSnapshot(snap => { S.needs = mapSnap(snap); S.loaded.needs = true; schedule(); }, () => {});
     db.collection("threads").onSnapshot(snap => {
